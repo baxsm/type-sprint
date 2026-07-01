@@ -24,11 +24,6 @@
   --color-correct: var(--color-correct);
   --color-incorrect: var(--color-incorrect);
   --color-info: var(--color-info);
-
-  /* legacy aliases for components not yet moved to the new primitives (removed in phase 7) */
-  --color-accent: var(--color-primary);
-  --color-good: var(--color-correct);
-  --color-bad: var(--color-incorrect);
 }
 
 :root {

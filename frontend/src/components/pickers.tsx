@@ -1,5 +1,6 @@
 "use client";
 
+import { Label } from "@/components/ui/typography";
 import type { Difficulty, Language } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,7 @@ type PillGroupProps<T extends string> = {
 function PillGroup<T extends string>({ label, options, value, onChange }: PillGroupProps<T>) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-xs uppercase tracking-wide text-[var(--color-dim)]">{label}</span>
+      <Label>{label}</Label>
       <div className="flex flex-wrap gap-1.5">
         {options.map((opt) => (
           <button
@@ -33,10 +34,10 @@ function PillGroup<T extends string>({ label, options, value, onChange }: PillGr
             type="button"
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-lg border px-3 py-1.5 text-sm transition-colors",
+              "border-[3px] px-3 py-1.5 text-sm font-semibold transition-colors",
               value === opt.value
-                ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-fg)]"
-                : "border-[var(--color-border)] text-[var(--color-dim)] hover:border-[var(--color-dim)] hover:text-[var(--color-fg)]",
+                ? "border-[var(--color-primary)] bg-[var(--color-accent-soft)] text-[var(--color-fg)]"
+                : "border-[var(--color-border)] text-[var(--color-dim)] hover:text-[var(--color-fg)]",
             )}
           >
             {opt.label}

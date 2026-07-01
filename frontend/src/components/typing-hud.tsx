@@ -1,5 +1,6 @@
 "use client";
 
+import { Label, Value } from "@/components/ui/typography";
 import AnimatedNumber from "./animated-number";
 
 type TypingHudProps = {
@@ -18,8 +19,8 @@ function formatTime(ms: number): string {
 
 const Stat = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex flex-col">
-    <span className="text-xs uppercase tracking-wide text-[var(--color-dim)]">{label}</span>
-    <span className="font-mono text-2xl font-semibold text-[var(--color-fg)]">{children}</span>
+    <Label>{label}</Label>
+    <Value>{children}</Value>
   </div>
 );
 
@@ -28,18 +29,16 @@ const TypingHud = ({ wpm, accuracy, elapsedMs, progress }: TypingHudProps) => {
     <div className="flex flex-col gap-3">
       <div className="flex items-end gap-8">
         <Stat label="WPM">
-          <span className="text-[var(--color-accent)]">
-            <AnimatedNumber value={wpm} />
-          </span>
+          <AnimatedNumber value={wpm} />
         </Stat>
         <Stat label="Accuracy">
           <AnimatedNumber value={accuracy} decimals={0} />%
         </Stat>
         <Stat label="Time">{formatTime(elapsedMs)}</Stat>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-surface-raised)]">
+      <div className="h-1.5 w-full overflow-hidden rounded-full border-[2px] border-[var(--color-border)] bg-[var(--color-surface-raised)]">
         <div
-          className="h-full rounded-full bg-[var(--color-accent)] transition-[width] duration-200 ease-out"
+          className="h-full bg-[var(--color-primary)] transition-[width] duration-200 ease-out"
           style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
         />
       </div>

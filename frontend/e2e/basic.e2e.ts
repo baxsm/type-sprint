@@ -26,3 +26,12 @@ test("start typing button goes to practice", async ({ page }) => {
   await expect(page).toHaveURL(/\/practice/);
   await expect(page.getByRole("textbox", { name: "Typing area" })).toBeVisible();
 });
+
+test("every page has exactly one top-level heading after the Phase 7 visual pass", async ({
+  page,
+}) => {
+  for (const path of ["/", "/daily", "/race", "/stats"]) {
+    await page.goto(path);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  }
+});

@@ -1,5 +1,7 @@
 "use client";
 
+import Panel from "@/components/ui/panel";
+
 type WpmChartProps = {
   data: { x: number; wpm: number }[];
 };
@@ -8,9 +10,9 @@ type WpmChartProps = {
 const WpmChart = ({ data }: WpmChartProps) => {
   if (data.length < 2) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-dim)]">
+      <Panel className="flex h-40 items-center justify-center text-sm text-[var(--color-dim)]">
         Complete a few runs to see your progress here.
-      </div>
+      </Panel>
     );
   }
 
@@ -35,7 +37,7 @@ const WpmChart = ({ data }: WpmChartProps) => {
   } L ${points[0]?.x.toFixed(1)} ${height - pad} Z`;
 
   return (
-    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <Panel className="p-4">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="h-40 w-full"
@@ -44,21 +46,21 @@ const WpmChart = ({ data }: WpmChartProps) => {
         aria-label="WPM over time"
       >
         <title>WPM over time</title>
-        <path d={areaPath} fill="var(--color-accent)" opacity="0.12" />
+        <path d={areaPath} fill="var(--color-primary)" opacity="0.12" />
         <path
           d={path}
           fill="none"
-          stroke="var(--color-accent)"
+          stroke="var(--color-primary)"
           strokeWidth="2"
           strokeLinejoin="round"
           strokeLinecap="round"
         />
         {points.map((p, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: points are a fixed ordered series
-          <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="var(--color-accent)" />
+          <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="var(--color-primary)" />
         ))}
       </svg>
-    </div>
+    </Panel>
   );
 };
 

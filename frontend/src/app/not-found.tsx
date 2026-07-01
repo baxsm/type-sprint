@@ -1,15 +1,16 @@
 import Link from "next/link";
+import Button from "@/components/ui/button";
+import { Subtitle, Title } from "@/components/ui/typography";
 
 export default function NotFound() {
   return (
     <div className="flex flex-col items-center gap-4 py-24 text-center">
-      <h1 className="font-mono text-4xl font-bold">404</h1>
-      <p className="text-[var(--color-dim)]">This page does not exist.</p>
-      <Link
-        href="/"
-        className="rounded-lg bg-[var(--color-accent)] px-5 py-2 font-medium text-white transition-opacity hover:opacity-90"
-      >
-        Back home
+      <Title as="h1" className="font-mono text-4xl">
+        404
+      </Title>
+      <Subtitle>This page does not exist.</Subtitle>
+      <Link href="/">
+        <Button>Back home</Button>
       </Link>
     </div>
   );

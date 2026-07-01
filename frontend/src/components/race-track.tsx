@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
+import Panel from "@/components/ui/panel";
 import { cn } from "@/lib/utils";
 
 export type Lane = {
@@ -14,7 +15,7 @@ export type Lane = {
 };
 
 const PlayerLane = ({ lane }: { lane: Lane }) => {
-  const accent = lane.isSelf ? "var(--color-accent)" : "var(--color-opponent)";
+  const accent = lane.isSelf ? "var(--color-primary)" : "var(--color-opponent)";
   const fillRef = useRef<HTMLDivElement>(null);
   const wasFinished = useRef(false);
 
@@ -51,8 +52,11 @@ const PlayerLane = ({ lane }: { lane: Lane }) => {
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between text-sm">
         <span className="flex min-w-0 items-center gap-2">
-          <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: accent }} />
-          <span className="truncate font-medium">
+          <span
+            className="h-2.5 w-2.5 shrink-0 border-[2px] border-[var(--color-ink)]"
+            style={{ backgroundColor: accent }}
+          />
+          <span className="truncate font-semibold">
             {lane.name}
             {lane.isSelf && <span className="ml-1 text-[var(--color-dim)]">(you)</span>}
           </span>
@@ -61,12 +65,8 @@ const PlayerLane = ({ lane }: { lane: Lane }) => {
           {lane.finished ? "done" : `${lane.wpm} wpm`}
         </span>
       </div>
-      <div className="h-3 w-full overflow-hidden rounded-full bg-[var(--color-surface-raised)]">
-        <div
-          ref={fillRef}
-          className={cn("h-full rounded-full")}
-          style={{ width: 0, backgroundColor: accent }}
-        />
+      <div className="h-3 w-full overflow-hidden border-[2px] border-[var(--color-border)] bg-[var(--color-surface-raised)]">
+        <div ref={fillRef} className={cn("h-full")} style={{ width: 0, backgroundColor: accent }} />
       </div>
     </div>
   );
@@ -74,12 +74,12 @@ const PlayerLane = ({ lane }: { lane: Lane }) => {
 
 const RaceTrack = ({ lanes }: { lanes: Lane[] }) => {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+    <Panel className="flex flex-col gap-4 p-5">
       {lanes.map((lane, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: at most two fixed lanes, order is stable
         <PlayerLane key={`${lane.name}-${i}`} lane={lane} />
       ))}
-    </div>
+    </Panel>
   );
 };
 

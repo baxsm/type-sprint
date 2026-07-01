@@ -5,6 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import RaceCountdown from "@/components/race-countdown";
 import RaceTrack, { type Lane } from "@/components/race-track";
 import TypingSurface, { type FinishPayload } from "@/components/typing-surface";
+import Button from "@/components/ui/button";
+import Panel from "@/components/ui/panel";
+import { Label, Subtitle, Title } from "@/components/ui/typography";
 import { getSnippetById } from "@/lib/snippets";
 import { addRun, loadProfile, saveProfile } from "@/lib/storage";
 import type { Snippet } from "@/lib/types";
@@ -51,28 +54,23 @@ export default function RacePage() {
   if (state.phase === "waiting") {
     return (
       <div className="flex flex-col items-center gap-6 py-12 text-center">
-        <h1 className="text-2xl font-bold">Race ready</h1>
+        <Title as="h1" className="text-2xl">
+          Race ready
+        </Title>
         {opponent ? (
           <div className="flex flex-col items-center gap-4">
-            <p className="text-[var(--color-dim)]">{opponent.name} joined. Ready up to start.</p>
-            <button
-              type="button"
-              onClick={ready}
-              disabled={self?.ready}
-              className="rounded-lg bg-[var(--color-accent)] px-6 py-2.5 font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-            >
+            <Subtitle>{opponent.name} joined. Ready up to start.</Subtitle>
+            <Button onClick={ready} disabled={self?.ready}>
               {self?.ready ? "Waiting for opponent..." : "I'm ready"}
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-4">
-            <p className="text-[var(--color-dim)]">
-              Share this code, or open a second window and join with it.
-            </p>
-            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-8 py-4 font-mono text-4xl font-bold tracking-[0.3em] text-[var(--color-accent)]">
+            <Subtitle>Share this code, or open a second window and join with it.</Subtitle>
+            <Panel className="px-8 py-4 font-mono text-4xl font-bold tracking-[0.3em] text-[var(--color-primary)]">
               {state.code}
-            </div>
-            <p className="text-sm text-[var(--color-dim)]">Waiting for another player...</p>
+            </Panel>
+            <Subtitle className="text-sm">Waiting for another player...</Subtitle>
           </div>
         )}
         <button
@@ -163,50 +161,44 @@ export default function RacePage() {
       />
 
       {state.error && state.phase !== "done" && (
-        <p className="text-sm text-[var(--color-bad)]">{state.error}</p>
+        <p className="text-sm text-[var(--color-incorrect)]">{state.error}</p>
       )}
 
       {state.phase === "done" && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col gap-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6"
-        >
-          <h2 className="text-2xl font-bold">
-            {won ? (
-              <span className="text-[var(--color-good)]">You win</span>
-            ) : (
-              <span>Race over</span>
-            )}
-          </h2>
-          <div className="flex flex-col gap-2">
-            {state.results?.players.map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center justify-between rounded-lg bg-[var(--color-surface-raised)] px-4 py-2"
-              >
-                <span className="font-medium">
-                  {p.name}
-                  {p.id === state.selfId && (
-                    <span className="ml-1 text-[var(--color-dim)]">(you)</span>
-                  )}
-                  {p.id === state.results?.winnerId && (
-                    <span className="ml-2 text-[var(--color-good)]">winner</span>
-                  )}
-                </span>
-                <span className="font-mono text-sm text-[var(--color-dim)]">
-                  {p.wpm} wpm - {p.accuracy}%
-                </span>
-              </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={reset}
-            className="self-start rounded-lg bg-[var(--color-accent)] px-5 py-2 font-medium text-white transition-opacity hover:opacity-90"
-          >
-            Race again
-          </button>
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <Panel accent={won ? "correct" : "ink"} className="flex flex-col gap-4 p-6">
+            <Title as="h2" className="text-2xl">
+              {won ? (
+                <span className="text-[var(--color-correct)]">You win</span>
+              ) : (
+                <span>Race over</span>
+              )}
+            </Title>
+            <div className="flex flex-col gap-2">
+              {state.results?.players.map((p) => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between border-[2px] border-[var(--color-border)] bg-[var(--color-surface-raised)] px-4 py-2"
+                >
+                  <span className="font-semibold">
+                    {p.name}
+                    {p.id === state.selfId && (
+                      <span className="ml-1 text-[var(--color-dim)]">(you)</span>
+                    )}
+                    {p.id === state.results?.winnerId && (
+                      <span className="ml-2 text-[var(--color-correct)]">winner</span>
+                    )}
+                  </span>
+                  <span className="font-mono text-sm text-[var(--color-dim)]">
+                    {p.wpm} wpm - {p.accuracy}%
+                  </span>
+                </div>
+              ))}
+            </div>
+            <Button onClick={reset} className="self-start">
+              Race again
+            </Button>
+          </Panel>
         </motion.div>
       )}
     </div>
@@ -236,63 +228,61 @@ const Lobby = ({
 }: LobbyProps) => (
   <div className="flex flex-col gap-8">
     <div className="flex flex-col gap-2">
-      <h1 className="text-2xl font-bold">Race</h1>
-      <p className="text-[var(--color-dim)]">
+      <Title as="h1" className="text-2xl">
+        Race
+      </Title>
+      <Subtitle>
         Race a friend in real time. To try it solo, create a race, then open this page in a second
         window and join with the code.
-      </p>
+      </Subtitle>
     </div>
 
     <div className="flex flex-col gap-2">
-      <label
-        htmlFor="race-name"
-        className="text-xs uppercase tracking-wide text-[var(--color-dim)]"
-      >
+      <Label as="label" htmlFor="race-name">
         Your name
-      </label>
+      </Label>
       <input
         id="race-name"
         value={name}
         maxLength={24}
         onChange={(e) => onName(e.target.value)}
-        className="w-full max-w-xs rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 outline-none focus-visible:border-[var(--color-accent)]"
+        className="w-full max-w-xs border-[3px] border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 outline-none focus-visible:border-[var(--color-primary)]"
       />
     </div>
 
     <div className="grid gap-4 sm:grid-cols-2">
-      <div className="flex flex-col gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-        <h2 className="font-semibold">Create a race</h2>
-        <p className="text-sm text-[var(--color-dim)]">Start a new race and get a code to share.</p>
-        <button
-          type="button"
-          onClick={onCreate}
-          disabled={connecting}
-          className="mt-auto rounded-lg bg-[var(--color-accent)] px-5 py-2 font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
+      <Panel className="flex flex-col gap-3 p-5">
+        <Title as="h2" className="text-lg">
+          Create a race
+        </Title>
+        <Subtitle className="text-sm">Start a new race and get a code to share.</Subtitle>
+        <Button onClick={onCreate} disabled={connecting} className="mt-auto">
           {connecting ? "Connecting..." : "Create race"}
-        </button>
-      </div>
+        </Button>
+      </Panel>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-        <h2 className="font-semibold">Join a race</h2>
+      <Panel className="flex flex-col gap-3 p-5">
+        <Title as="h2" className="text-lg">
+          Join a race
+        </Title>
         <input
           value={joinCode}
           maxLength={4}
           placeholder="Enter code"
           onChange={(e) => onJoinCode(e.target.value.toUpperCase())}
-          className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-raised)] px-3 py-2 font-mono uppercase tracking-widest outline-none focus-visible:border-[var(--color-accent)]"
+          className="border-[3px] border-[var(--color-border)] bg-[var(--color-surface-raised)] px-3 py-2 font-mono uppercase tracking-widest outline-none focus-visible:border-[var(--color-primary)]"
         />
-        <button
-          type="button"
+        <Button
+          variant="secondary"
           onClick={onJoin}
           disabled={connecting || joinCode.length !== 4}
-          className="mt-auto rounded-lg border border-[var(--color-border)] px-5 py-2 font-medium transition-colors hover:border-[var(--color-dim)] disabled:opacity-50"
+          className="mt-auto"
         >
           Join race
-        </button>
-      </div>
+        </Button>
+      </Panel>
     </div>
 
-    {error && <p className="text-sm text-[var(--color-bad)]">{error}</p>}
+    {error && <p className="text-sm text-[var(--color-incorrect)]">{error}</p>}
   </div>
 );

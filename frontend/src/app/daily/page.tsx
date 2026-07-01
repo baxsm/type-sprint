@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import ResultsPanel from "@/components/results-panel";
 import TypingHud from "@/components/typing-hud";
 import TypingSurface, { type FinishPayload } from "@/components/typing-surface";
+import Panel from "@/components/ui/panel";
+import { Label, Subtitle, Title, Value } from "@/components/ui/typography";
 import { getDailySnippet, todayStr } from "@/lib/snippets";
 import { addRun, loadDaily, saveDaily } from "@/lib/storage";
 import type { DailyResult, LiveStats, Snippet } from "@/lib/types";
@@ -79,20 +81,18 @@ export default function DailyPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col">
-          <h1 className="text-2xl font-bold">Daily Challenge</h1>
-          <p className="text-sm text-[var(--color-dim)]">
-            {dateStr} - same snippet for everyone today
-          </p>
+          <Title as="h1" className="text-2xl">
+            Daily Challenge
+          </Title>
+          <Subtitle className="text-sm">{dateStr} - same snippet for everyone today</Subtitle>
         </div>
         {best && (
-          <div className="flex flex-col items-end rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2">
-            <span className="text-xs uppercase tracking-wide text-[var(--color-dim)]">
-              Your best today
-            </span>
-            <span className="font-mono text-lg font-semibold text-[var(--color-good)]">
+          <Panel accent="correct" className="flex flex-col items-end px-4 py-2">
+            <Label>Your best today</Label>
+            <Value className="text-lg text-[var(--color-correct)]">
               {best.bestWpm} WPM - {best.bestAccuracy}%
-            </span>
-          </div>
+            </Value>
+          </Panel>
         )}
       </div>
 
@@ -121,15 +121,16 @@ export default function DailyPage() {
           onRestart={restart}
           extra={
             <div
-              className="rounded-lg px-4 py-3 text-sm"
+              className="border-[2px] px-4 py-3 text-sm"
               style={{
                 backgroundColor: beatBest
-                  ? "color-mix(in srgb, var(--color-good) 15%, transparent)"
+                  ? "color-mix(in srgb, var(--color-correct) 15%, transparent)"
                   : "var(--color-surface-raised)",
+                borderColor: beatBest ? "var(--color-correct)" : "var(--color-border)",
               }}
             >
               {beatBest ? (
-                <span className="text-[var(--color-good)]">New personal best for today.</span>
+                <span className="text-[var(--color-correct)]">New personal best for today.</span>
               ) : (
                 <span className="text-[var(--color-dim)]">
                   Your best today stays {best?.bestWpm} WPM. Keep trying.

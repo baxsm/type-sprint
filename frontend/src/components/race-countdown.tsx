@@ -33,7 +33,7 @@ const RaceCountdown = ({ value }: RaceCountdownProps) => {
 
   return (
     <div className="flex items-center justify-center py-6">
-      <span ref={ref} className="font-mono text-6xl font-bold text-[var(--color-accent)]">
+      <span ref={ref} className="font-mono text-6xl font-bold text-[var(--color-primary)]">
         {isGo ? "Go" : value}
       </span>
     </div>
