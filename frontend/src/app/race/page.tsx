@@ -142,6 +142,12 @@ export default function RacePage() {
     <div className="flex flex-col gap-6">
       <RaceTrack lanes={lanes} />
 
+      {state.phase === "reconnecting" && (
+        <p className="text-center text-sm text-[var(--color-dim)]">
+          Reconnecting to the race server...
+        </p>
+      )}
+
       {state.phase === "countdown" && state.countdown !== null && (
         <div className="flex items-center justify-center py-6">
           <motion.span

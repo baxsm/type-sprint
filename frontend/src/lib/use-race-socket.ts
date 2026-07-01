@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { io, type Socket } from "socket.io-client";
 import {
   type ClientMessage,
   errorReasons,
@@ -10,11 +11,12 @@ import {
   serverMessageSchema,
 } from "./race-protocol";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:3001";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "http://localhost:3001";
 
 export type RacePhase =
   | "idle"
   | "connecting"
+  | "reconnecting"
   | "waiting"
   | "countdown"
   | "racing"
@@ -50,8 +52,10 @@ const initialState: RaceState = {
 };
 
 // all message handling reads and writes through refs, never stale closures.
+// socket.io handles reconnection with backoff on its own, we just react to
+// its connect/reconnecting/disconnect events to keep the UI honest.
 export function useRaceSocket() {
-  const socketRef = useRef<WebSocket | null>(null);
+  const socketRef = useRef<Socket | null>(null);
   const stateRef = useRef<RaceState>(initialState);
   const [state, setStateRaw] = useState<RaceState>(initialState);
 
@@ -117,49 +121,56 @@ export function useRaceSocket() {
     [setState],
   );
 
-  const connect = useCallback((): Promise<WebSocket> => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+  const connect = useCallback((): Promise<Socket> => {
+    if (socketRef.current?.connected) {
       return Promise.resolve(socketRef.current);
     }
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(WS_URL);
-      socketRef.current = ws;
+      const socket = io(WS_URL, {
+        transports: ["websocket"],
+        reconnectionAttempts: 5,
+        reconnectionDelay: 500,
+        reconnectionDelayMax: 3000,
+      });
+      socketRef.current = socket;
       setState({ phase: "connecting" });
 
-      ws.onopen = () => resolve(ws);
-      ws.onerror = () => {
+      socket.on("connect", () => resolve(socket));
+
+      socket.on("connect_error", () => {
         setState({
           phase: "error",
           error: "Could not reach the race server. Is it running?",
         });
         reject(new Error("connect failed"));
-      };
-      ws.onmessage = (event) => {
-        let parsed: unknown;
-        try {
-          parsed = JSON.parse(event.data as string);
-        } catch {
-          return;
-        }
-        const result = serverMessageSchema.safeParse(parsed);
+      });
+
+      socket.on("message", (raw: unknown) => {
+        const result = serverMessageSchema.safeParse(raw);
         if (result.success) handleMessage(result.data);
-      };
-      ws.onclose = () => {
-        // if a race was in progress and not done, surface a dropped connection
-        if (stateRef.current.phase === "racing" || stateRef.current.phase === "countdown") {
-          setState({
-            error: "Connection to the race server dropped.",
-          });
+      });
+
+      socket.io.on("reconnect_attempt", () => {
+        if (
+          stateRef.current.phase === "racing" ||
+          stateRef.current.phase === "countdown" ||
+          stateRef.current.phase === "waiting"
+        ) {
+          setState({ phase: "reconnecting" });
         }
-      };
+      });
+
+      socket.io.on("reconnect_failed", () => {
+        setState({
+          phase: "error",
+          error: "Connection to the race server dropped.",
+        });
+      });
     });
   }, [handleMessage, setState]);
 
   const send = useCallback((msg: ClientMessage) => {
-    const ws = socketRef.current;
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(msg));
-    }
+    socketRef.current?.emit("message", msg);
   }, []);
 
   const createRace = useCallback(
@@ -191,14 +202,7 @@ export function useRaceSocket() {
   );
 
   const reset = useCallback(() => {
-    const ws = socketRef.current;
-    if (ws) {
-      try {
-        ws.close();
-      } catch {
-        // ignore
-      }
-    }
+    socketRef.current?.disconnect();
     socketRef.current = null;
     stateRef.current = initialState;
     setStateRaw(initialState);
@@ -207,7 +211,7 @@ export function useRaceSocket() {
   // clean up the socket on unmount so a stale connection never lingers
   useEffect(() => {
     return () => {
-      socketRef.current?.close();
+      socketRef.current?.disconnect();
       socketRef.current = null;
     };
   }, []);

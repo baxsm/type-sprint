@@ -3,9 +3,9 @@ import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { typeTargetText } from "./helpers";
 
-// boots the real ws-server for the duration of this file, then drives two
-// browser contexts through a full race. this is the showcase demo flow.
-// the client defaults to ws://localhost:3001, so the test server uses that port.
+// boots the real ws-server (socket.io) for the duration of this file, then
+// drives two browser contexts through a full race. this is the showcase demo flow.
+// the client defaults to http://localhost:3001, so the test server uses that port.
 
 let server: ChildProcess;
 const WS_PORT = 3001;
