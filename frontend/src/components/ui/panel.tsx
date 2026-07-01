@@ -1,7 +1,7 @@
-import type { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
+import type { ComponentPropsWithRef, ElementType, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-interface PanelProps extends ComponentPropsWithoutRef<"div"> {
+interface PanelProps extends ComponentPropsWithRef<"div"> {
   children: ReactNode;
   as?: ElementType;
   accent?: "ink" | "primary" | "correct" | "incorrect" | "opponent";
@@ -18,9 +18,10 @@ const accentBorder: Record<NonNullable<PanelProps["accent"]>, string> = {
 
 // the single "card-like" surface for the whole app. never nest a Panel inside a Panel -
 // use a divider or spacing for internal separation instead.
-const Panel = ({ children, as: Tag = "div", accent = "ink", className, ...props }: PanelProps) => {
+const Panel = ({ children, as: Tag = "div", accent = "ink", className, ref, ...props }: PanelProps) => {
   return (
     <Tag
+      ref={ref}
       className={cn(
         "border-[3px] bg-[var(--color-surface)] shadow-[6px_6px_0_0_var(--color-ink)]",
         accentBorder[accent],

@@ -19,7 +19,7 @@ describe("TypingSurface", () => {
     // the caret is a sibling span rendered before the characters, so target
     // character spans specifically via [aria-hidden absent]
     const charSpans = box.querySelectorAll("span:not([aria-hidden])");
-    expect(charSpans[0]?.className).toContain("color-fg");
+    expect(charSpans[0]?.className).toContain("color-dim");
   });
 
   it("marks an incorrect keystroke", () => {
@@ -27,7 +27,28 @@ describe("TypingSurface", () => {
     fireEvent.keyDown(window, { key: "z" });
     const box = screen.getByRole("textbox");
     const charSpans = box.querySelectorAll("span:not([aria-hidden])");
-    expect(charSpans[0]?.className).toContain("color-bad");
+    expect(charSpans[0]?.className).toContain("color-incorrect");
+  });
+
+  it("gives the current character a highlight class distinct from a correct one", () => {
+    render(<TypingSurface text="abc" />);
+    fireEvent.keyDown(window, { key: "a" });
+    const box = screen.getByRole("textbox");
+    const charSpans = box.querySelectorAll("span:not([aria-hidden])");
+    const correctClass = charSpans[0]?.className ?? "";
+    const currentClass = charSpans[1]?.className ?? "";
+    expect(currentClass).toContain("color-accent-soft");
+    expect(currentClass).not.toBe(correctClass);
+  });
+
+  it("tab advances the caret and matches a tab character in the target", () => {
+    const onProgress = vi.fn();
+    render(<TypingSurface text={"a\tb"} onProgress={onProgress} />);
+    fireEvent.keyDown(window, { key: "a" });
+    fireEvent.keyDown(window, { key: "Tab" });
+    const lastCall = onProgress.mock.calls.at(-1);
+    expect(lastCall?.[0].caret).toBe(2);
+    expect(lastCall?.[0].states[1]).toBe("correct");
   });
 
   it("calls onProgress on each keystroke", () => {

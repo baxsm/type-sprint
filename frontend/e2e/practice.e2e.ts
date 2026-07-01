@@ -44,3 +44,20 @@ test("daily persists a personal best across reloads", async ({ page }) => {
   await page.reload();
   await expect(page.getByText("Your best today")).toBeVisible();
 });
+
+test("completes a snippet with a real Tab keypress for indentation", async ({ page }) => {
+  await page.goto("/practice?lang=javascript&diff=medium");
+  const box = page.getByRole("textbox", { name: "Typing area" });
+
+  // js-medium snippets include one with a tab indent - cycle until we get it
+  let target = await box.getAttribute("data-target");
+  for (let i = 0; i < 10 && !target?.includes("\t"); i++) {
+    await page.getByRole("button", { name: "New snippet" }).click();
+    await page.waitForTimeout(50);
+    target = await box.getAttribute("data-target");
+  }
+  expect(target).toContain("\t");
+
+  await typeTargetText(page);
+  await expect(page.getByText("Try again")).toBeVisible();
+});

@@ -81,4 +81,13 @@ describe("createTypingSession", () => {
     expect(s.state().caret).toBe(0);
     expect(s.state().done).toBe(false);
   });
+
+  it("matches a tab character in the target, like newline", () => {
+    const s = createTypingSession("a\tb");
+    s.onKey("a");
+    s.onKey("\t");
+    const state = s.state();
+    expect(state.states[1]).toBe("correct");
+    expect(state.caret).toBe(2);
+  });
 });

@@ -19,6 +19,7 @@ test("capture practice mid-run and results", async ({ page }) => {
   const partial = [...text].slice(0, 8);
   for (const c of partial) {
     if (c === "\n") await page.keyboard.press("Enter");
+    else if (c === "\t") await page.keyboard.press("Tab");
     else await page.keyboard.type(c);
   }
   await page.keyboard.type("Z"); // deliberate error
@@ -93,6 +94,7 @@ async function typeRest(
   const rest = [...text].slice(from);
   for (const c of rest) {
     if (c === "\n") await page.keyboard.press("Enter");
+    else if (c === "\t") await page.keyboard.press("Tab");
     else await page.keyboard.type(c);
   }
 }

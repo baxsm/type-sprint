@@ -2,6 +2,7 @@
 
 import gsap from "gsap";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Panel from "@/components/ui/panel";
 import { computeConsistency } from "@/lib/stats";
 import type { CharState, LiveStats, TypingState } from "@/lib/types";
 import { createTypingSession, type TypingSession } from "@/lib/typing-engine";
@@ -27,11 +28,13 @@ type TypingSurfaceProps = {
   lockedMessage?: string;
 };
 
+// correct settles to a calmer tone (it's done, it recedes); current gets a filled
+// highlight chip so the eye finds "where am I" instantly, with the caret on top of it.
 const stateClass: Record<CharState, string> = {
   untyped: "text-[var(--color-muted)]",
-  correct: "text-[var(--color-fg)]",
-  incorrect: "text-[var(--color-bad)] bg-[var(--color-bad)]/10 rounded-sm",
-  current: "text-[var(--color-fg)]",
+  correct: "text-[var(--color-dim)]",
+  incorrect: "text-[var(--color-incorrect)] bg-[var(--color-incorrect)]/10 rounded-sm",
+  current: "text-[var(--color-fg)] bg-[var(--color-accent-soft)] rounded-sm",
 };
 
 // module-level so it never needs to appear in a hook's dependency array
@@ -104,9 +107,11 @@ const TypingSurface = ({
         return;
       }
 
-      // enter maps to the newline character in code snippets
+      // enter maps to the newline character, tab to the indent character -
+      // both are single characters in the target text, matched the same way
       let char: string | null = null;
       if (e.key === "Enter") char = "\n";
+      else if (e.key === "Tab") char = "\t";
       else if (e.key.length === 1) char = e.key;
 
       if (char === null) return;
@@ -166,8 +171,7 @@ const TypingSurface = ({
   const chars = [...text];
 
   return (
-    // biome-ignore lint/a11y/useSemanticElements: a custom typing widget, not a form input
-    <div
+    <Panel
       ref={containerRef}
       role="textbox"
       tabIndex={0}
@@ -175,12 +179,8 @@ const TypingSurface = ({
       data-target={text}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
-      className={cn(
-        "relative max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-xl border p-6 font-mono text-xl leading-relaxed outline-none transition-colors sm:text-2xl",
-        focused
-          ? "border-[var(--color-accent)]/60 bg-[var(--color-surface)]"
-          : "border-[var(--color-border)] bg-[var(--color-surface)]",
-      )}
+      accent={focused ? "primary" : "ink"}
+      className="relative max-h-64 overflow-auto whitespace-pre-wrap break-words p-6 font-mono text-xl leading-relaxed outline-none sm:text-2xl"
     >
       {disabled && lockedMessage && !state.done && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-[var(--color-bg)]/70 text-sm font-medium text-[var(--color-dim)]">
@@ -196,7 +196,7 @@ const TypingSurface = ({
         <span
           ref={caretRef}
           className={cn(
-            "pointer-events-none absolute top-0 left-0 w-[2px] bg-[var(--color-accent)]",
+            "pointer-events-none absolute top-0 left-0 w-[2px] bg-[var(--color-primary)]",
             focused ? "caret-idle" : "opacity-40",
           )}
           aria-hidden="true"
@@ -206,6 +206,7 @@ const TypingSurface = ({
         const cs = state.states[i] ?? "untyped";
         const isCurrent = i === state.caret;
         const showNewline = char === "\n";
+        const showTab = char === "\t";
         return (
           <span
             // biome-ignore lint/suspicious/noArrayIndexKey: position is the identity here, chars repeat
@@ -217,20 +218,32 @@ const TypingSurface = ({
               <>
                 <span
                   className={cn(
-                    cs === "incorrect" ? "text-[var(--color-bad)]" : "text-[var(--color-muted)]",
+                    cs === "incorrect"
+                      ? "text-[var(--color-incorrect)]"
+                      : "text-[var(--color-muted)]",
                   )}
                 >
                   {"↵"}
                 </span>
                 {"\n"}
               </>
+            ) : showTab ? (
+              <span
+                className={cn(
+                  cs === "incorrect"
+                    ? "text-[var(--color-incorrect)]"
+                    : "text-[var(--color-muted)]",
+                )}
+              >
+                {"→ "}
+              </span>
             ) : (
               char
             )}
           </span>
         );
       })}
-    </div>
+    </Panel>
   );
 };
 

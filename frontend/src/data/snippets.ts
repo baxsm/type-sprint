@@ -3,6 +3,8 @@ import type { Snippet } from "@/lib/types";
 // static catalog. ids are stable so runs can reference them.
 // difficulty for code tracks line count, symbol density, and indentation.
 // difficulty for prose tracks length and punctuation.
+// code snippets use a literal tab character for indentation, matched by a single
+// Tab keypress in TypingSurface (same pattern as Enter matching "\n").
 
 export const snippets: Snippet[] = [
   // javascript - easy
@@ -43,7 +45,7 @@ export const snippets: Snippet[] = [
     language: "javascript",
     difficulty: "medium",
     // biome-ignore lint/suspicious/noTemplateCurlyInString: this is snippet content to type, not code
-    text: "function greet(name) {\n  return `Hello, ${name}!`;\n}",
+    text: "function greet(name) {\n\treturn `Hello, ${name}!`;\n}",
   },
   {
     id: "js-medium-002",
@@ -55,13 +57,13 @@ export const snippets: Snippet[] = [
     id: "js-medium-003",
     language: "javascript",
     difficulty: "medium",
-    text: "const cache = new Map();\nif (!cache.has(key)) {\n  cache.set(key, compute(key));\n}",
+    text: "const cache = new Map();\nif (!cache.has(key)) {\n\tcache.set(key, compute(key));\n}",
   },
   {
     id: "js-medium-004",
     language: "javascript",
     difficulty: "medium",
-    text: "async function load(url) {\n  const res = await fetch(url);\n  return res.json();\n}",
+    text: "async function load(url) {\n\tconst res = await fetch(url);\n\treturn res.json();\n}",
   },
 
   // javascript - hard
@@ -69,19 +71,19 @@ export const snippets: Snippet[] = [
     id: "js-hard-001",
     language: "javascript",
     difficulty: "hard",
-    text: "const debounce = (fn, ms) => {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), ms);\n  };\n};",
+    text: "const debounce = (fn, ms) => {\n\tlet timer;\n\treturn (...args) => {\n\t\tclearTimeout(timer);\n\t\ttimer = setTimeout(() => fn(...args), ms);\n\t};\n};",
   },
   {
     id: "js-hard-002",
     language: "javascript",
     difficulty: "hard",
-    text: "const memoize = (fn) => {\n  const cache = new Map();\n  return (arg) => {\n    if (cache.has(arg)) return cache.get(arg);\n    const result = fn(arg);\n    cache.set(arg, result);\n    return result;\n  };\n};",
+    text: "const memoize = (fn) => {\n\tconst cache = new Map();\n\treturn (arg) => {\n\t\tif (cache.has(arg)) return cache.get(arg);\n\t\tconst result = fn(arg);\n\t\tcache.set(arg, result);\n\t\treturn result;\n\t};\n};",
   },
   {
     id: "js-hard-003",
     language: "javascript",
     difficulty: "hard",
-    text: "export const groupBy = (items, key) =>\n  items.reduce((acc, item) => {\n    const group = item[key];\n    (acc[group] ??= []).push(item);\n    return acc;\n  }, {});",
+    text: "export const groupBy = (items, key) =>\n\titems.reduce((acc, item) => {\n\t\tconst group = item[key];\n\t\t(acc[group] ??= []).push(item);\n\t\treturn acc;\n\t}, {});",
   },
 
   // python - easy
@@ -89,7 +91,7 @@ export const snippets: Snippet[] = [
     id: "py-easy-001",
     language: "python",
     difficulty: "easy",
-    text: "def add(a, b):\n    return a + b",
+    text: "def add(a, b):\n\treturn a + b",
   },
   {
     id: "py-easy-002",
@@ -107,7 +109,7 @@ export const snippets: Snippet[] = [
     id: "py-easy-004",
     language: "python",
     difficulty: "easy",
-    text: "if count > 0:\n    return True",
+    text: "if count > 0:\n\treturn True",
   },
   {
     id: "py-easy-005",
@@ -121,7 +123,7 @@ export const snippets: Snippet[] = [
     id: "py-medium-001",
     language: "python",
     difficulty: "medium",
-    text: "def greet(name):\n    return f'Hello, {name}!'",
+    text: "def greet(name):\n\treturn f'Hello, {name}!'",
   },
   {
     id: "py-medium-002",
@@ -133,13 +135,13 @@ export const snippets: Snippet[] = [
     id: "py-medium-003",
     language: "python",
     difficulty: "medium",
-    text: "cache = {}\nif key not in cache:\n    cache[key] = compute(key)",
+    text: "cache = {}\nif key not in cache:\n\tcache[key] = compute(key)",
   },
   {
     id: "py-medium-004",
     language: "python",
     difficulty: "medium",
-    text: "with open(path) as f:\n    lines = f.readlines()\n    count = len(lines)",
+    text: "with open(path) as f:\n\tlines = f.readlines()\n\tcount = len(lines)",
   },
 
   // python - hard
@@ -147,19 +149,19 @@ export const snippets: Snippet[] = [
     id: "py-hard-001",
     language: "python",
     difficulty: "hard",
-    text: "def memoize(fn):\n    cache = {}\n    def wrapper(arg):\n        if arg not in cache:\n            cache[arg] = fn(arg)\n        return cache[arg]\n    return wrapper",
+    text: "def memoize(fn):\n\tcache = {}\n\tdef wrapper(arg):\n\t\tif arg not in cache:\n\t\t\tcache[arg] = fn(arg)\n\t\treturn cache[arg]\n\treturn wrapper",
   },
   {
     id: "py-hard-002",
     language: "python",
     difficulty: "hard",
-    text: "def group_by(items, key):\n    result = {}\n    for item in items:\n        result.setdefault(item[key], []).append(item)\n    return result",
+    text: "def group_by(items, key):\n\tresult = {}\n\tfor item in items:\n\t\tresult.setdefault(item[key], []).append(item)\n\treturn result",
   },
   {
     id: "py-hard-003",
     language: "python",
     difficulty: "hard",
-    text: "async def fetch_all(urls):\n    async with aiohttp.ClientSession() as session:\n        tasks = [session.get(url) for url in urls]\n        return await asyncio.gather(*tasks)",
+    text: "async def fetch_all(urls):\n\tasync with aiohttp.ClientSession() as session:\n\t\ttasks = [session.get(url) for url in urls]\n\t\treturn await asyncio.gather(*tasks)",
   },
 
   // prose - easy
