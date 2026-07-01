@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import CharacterBadge from "@/components/character-badge";
 import RaceCountdown from "@/components/race-countdown";
 import RaceTrack, { type Lane } from "@/components/race-track";
 import TypingSurface, { type FinishPayload } from "@/components/typing-surface";
@@ -10,18 +11,21 @@ import Panel from "@/components/ui/panel";
 import { Label, Subtitle, Title } from "@/components/ui/typography";
 import { getSnippetById } from "@/lib/snippets";
 import { addRun, loadProfile, saveProfile } from "@/lib/storage";
-import type { Snippet } from "@/lib/types";
+import type { Character, Snippet } from "@/lib/types";
 import { useRaceSocket } from "@/lib/use-race-socket";
 import { buildRun } from "@/lib/utils";
 
 export default function RacePage() {
   const { state, createRace, joinRace, ready, sendProgress, sendFinish, reset } = useRaceSocket();
   const [name, setName] = useState("Guest");
+  const [character, setCharacter] = useState<Character>({ style: "adventurer", seed: "guest" });
   const [joinCode, setJoinCode] = useState("");
   const lastSentRef = useRef(0);
 
   useEffect(() => {
-    setName(loadProfile().name);
+    const profile = loadProfile();
+    setName(profile.name);
+    setCharacter(profile.character);
   }, []);
 
   const snippet: Snippet | null = state.snippetId ? getSnippetById(state.snippetId) : null;
@@ -37,6 +41,7 @@ export default function RacePage() {
       <Lobby
         name={name}
         onName={saveName}
+        character={character}
         joinCode={joinCode}
         onJoinCode={setJoinCode}
         connecting={state.phase === "connecting"}
@@ -95,6 +100,7 @@ export default function RacePage() {
   const lanes: Lane[] = [
     {
       name: self?.name ?? "You",
+      character: self?.character ?? loadProfile().character,
       progress: self?.progress ?? 0,
       wpm: self?.wpm ?? 0,
       isSelf: true,
@@ -104,6 +110,7 @@ export default function RacePage() {
   if (opponent) {
     lanes.push({
       name: opponent.name,
+      character: opponent.character,
       progress: state.opponentProgress,
       wpm: state.opponentWpm,
       isSelf: false,
@@ -208,6 +215,7 @@ export default function RacePage() {
 type LobbyProps = {
   name: string;
   onName: (v: string) => void;
+  character: Character;
   joinCode: string;
   onJoinCode: (v: string) => void;
   connecting: boolean;
@@ -219,6 +227,7 @@ type LobbyProps = {
 const Lobby = ({
   name,
   onName,
+  character,
   joinCode,
   onJoinCode,
   connecting,
@@ -241,13 +250,16 @@ const Lobby = ({
       <Label as="label" htmlFor="race-name">
         Your name
       </Label>
-      <input
-        id="race-name"
-        value={name}
-        maxLength={24}
-        onChange={(e) => onName(e.target.value)}
-        className="w-full max-w-xs border-[3px] border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 outline-none focus-visible:border-[var(--color-primary)]"
-      />
+      <div className="flex items-center gap-3">
+        <input
+          id="race-name"
+          value={name}
+          maxLength={24}
+          onChange={(e) => onName(e.target.value)}
+          className="w-full max-w-xs border-[3px] border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 outline-none focus-visible:border-[var(--color-primary)]"
+        />
+        <CharacterBadge character={character} name="Change character" />
+      </div>
     </div>
 
     <div className="grid gap-4 sm:grid-cols-2">

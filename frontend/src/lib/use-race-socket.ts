@@ -10,6 +10,7 @@ import {
   type ServerMessage,
   serverMessageSchema,
 } from "./race-protocol";
+import { loadProfile } from "./storage";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "http://localhost:3001";
 
@@ -176,7 +177,7 @@ export function useRaceSocket() {
   const createRace = useCallback(
     async (name: string) => {
       await connect();
-      send({ type: "create", name });
+      send({ type: "create", name, character: loadProfile().character });
     },
     [connect, send],
   );
@@ -184,7 +185,7 @@ export function useRaceSocket() {
   const joinRace = useCallback(
     async (code: string, name: string) => {
       await connect();
-      send({ type: "join", code: code.toUpperCase(), name });
+      send({ type: "join", code: code.toUpperCase(), name, character: loadProfile().character });
     },
     [connect, send],
   );

@@ -1,11 +1,25 @@
 import { z } from "zod";
 
+// mirror of the frontend's characterSchema. the server never interprets this,
+// only relays it, the same way it already relays name.
+export const characterSchema = z.object({
+  style: z.enum(["adventurer", "bottts", "pixel-art", "thumbs", "notionists", "big-smile"]),
+  seed: z.string().min(1).max(40),
+});
+
+export type Character = z.infer<typeof characterSchema>;
+
 export const clientMessageSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("create"), name: z.string().min(1).max(24) }),
+  z.object({
+    type: z.literal("create"),
+    name: z.string().min(1).max(24),
+    character: characterSchema,
+  }),
   z.object({
     type: z.literal("join"),
     code: z.string().length(4),
     name: z.string().min(1).max(24),
+    character: characterSchema,
   }),
   z.object({ type: z.literal("ready") }),
   z.object({
@@ -26,6 +40,7 @@ export type ClientMessage = z.infer<typeof clientMessageSchema>;
 export const playerViewSchema = z.object({
   id: z.string(),
   name: z.string(),
+  character: characterSchema,
   progress: z.number(),
   wpm: z.number(),
   ready: z.boolean(),

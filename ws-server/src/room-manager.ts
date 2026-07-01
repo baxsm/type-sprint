@@ -1,4 +1,5 @@
 import {
+  type Character,
   type ClientMessage,
   type RaceResult,
   type RoomView,
@@ -9,6 +10,7 @@ import {
 type Player = {
   id: string;
   name: string;
+  character: Character;
   progress: number;
   wpm: number;
   accuracy: number;
@@ -62,10 +64,10 @@ export class RoomManager {
   handle(playerId: string, message: ClientMessage): void {
     switch (message.type) {
       case "create":
-        this.create(playerId, message.name);
+        this.create(playerId, message.name, message.character);
         break;
       case "join":
-        this.join(playerId, message.code, message.name);
+        this.join(playerId, message.code, message.name, message.character);
         break;
       case "ready":
         this.ready(playerId);
@@ -95,10 +97,11 @@ export class RoomManager {
     return `R${this.rooms.size}`.padEnd(4, "0").slice(0, 4);
   }
 
-  private newPlayer(id: string, name: string): Player {
+  private newPlayer(id: string, name: string, character: Character): Player {
     return {
       id,
       name,
+      character,
       progress: 0,
       wpm: 0,
       accuracy: 0,
@@ -109,7 +112,7 @@ export class RoomManager {
     };
   }
 
-  private create(playerId: string, name: string): void {
+  private create(playerId: string, name: string, character: Character): void {
     if (this.playerRoom.has(playerId)) {
       this.send(playerId, { type: "error", reason: "already-in-room" });
       return;
@@ -123,7 +126,7 @@ export class RoomManager {
       players: new Map(),
       createdAt: this.now(),
     };
-    room.players.set(playerId, this.newPlayer(playerId, name));
+    room.players.set(playerId, this.newPlayer(playerId, name, character));
     this.rooms.set(code, room);
     this.playerRoom.set(playerId, code);
 
@@ -131,7 +134,7 @@ export class RoomManager {
     this.broadcastState(room);
   }
 
-  private join(playerId: string, code: string, name: string): void {
+  private join(playerId: string, code: string, name: string, character: Character): void {
     if (this.playerRoom.has(playerId)) {
       this.send(playerId, { type: "error", reason: "already-in-room" });
       return;
@@ -145,7 +148,7 @@ export class RoomManager {
       this.send(playerId, { type: "error", reason: "room-full" });
       return;
     }
-    room.players.set(playerId, this.newPlayer(playerId, name));
+    room.players.set(playerId, this.newPlayer(playerId, name, character));
     this.playerRoom.set(playerId, room.code);
 
     this.send(playerId, {
@@ -310,6 +313,7 @@ export class RoomManager {
       players: [...room.players.values()].map((p) => ({
         id: p.id,
         name: p.name,
+        character: p.character,
         progress: p.progress,
         wpm: p.wpm,
         ready: p.ready,

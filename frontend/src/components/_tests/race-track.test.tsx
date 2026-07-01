@@ -4,6 +4,7 @@ import RaceTrack, { type Lane } from "../race-track";
 
 const alice: Lane = {
   name: "Alice",
+  character: { style: "adventurer", seed: "alice" },
   progress: 40,
   wpm: 55,
   isSelf: true,
@@ -11,6 +12,7 @@ const alice: Lane = {
 };
 const bob: Lane = {
   name: "Bob",
+  character: { style: "bottts", seed: "bob" },
   progress: 20,
   wpm: 45,
   isSelf: false,
@@ -38,5 +40,19 @@ describe("RaceTrack", () => {
   it("shows live wpm when not finished", () => {
     render(<RaceTrack lanes={lanes} />);
     expect(screen.getByText("55 wpm")).toBeInTheDocument();
+  });
+
+  it("renders a character avatar for both self and opponent lanes", () => {
+    const { container } = render(<RaceTrack lanes={lanes} />);
+    const imgs = container.querySelectorAll("img");
+    expect(imgs.length).toBe(2);
+    for (const img of imgs) {
+      expect(img.getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
+    }
+  });
+
+  it("does not crash when a player is missing character data", () => {
+    const withoutCharacter = { ...alice, character: undefined } as unknown as Lane;
+    expect(() => render(<RaceTrack lanes={[withoutCharacter, bob]} />)).not.toThrow();
   });
 });

@@ -75,13 +75,34 @@ describe("ws-server integration", () => {
     const a = await connect();
     const b = await connect();
 
-    send(a, { type: "create", name: "Alice" });
+    // collect every state broadcast a receives, since create/join/ready each
+    // trigger one and nextMessage only looks forward from when it's called
+    const statesForA: Extract<ServerMessage, { type: "state" }>[] = [];
+    a.on("message", (msg: ServerMessage) => {
+      if (msg.type === "state") statesForA.push(msg);
+    });
+
+    send(a, {
+      type: "create",
+      name: "Alice",
+      character: { style: "adventurer", seed: "alice" },
+    });
     const created = await nextMessage(a, "created");
     expect(created.code.length).toBe(4);
 
-    send(b, { type: "join", code: created.code, name: "Bob" });
+    send(b, {
+      type: "join",
+      code: created.code,
+      name: "Bob",
+      character: { style: "bottts", seed: "bob" },
+    });
     const joined = await nextMessage(b, "joined");
     expect(joined.snippetId).toBe(created.snippetId);
+
+    // the state broadcast after joining should carry both players' characters
+    const stateAfterJoin = statesForA.find((s) => s.room.players.some((p) => p.name === "Bob"));
+    const bobInState = stateAfterJoin?.room.players.find((p) => p.name === "Bob");
+    expect(bobInState?.character).toEqual({ style: "bottts", seed: "bob" });
 
     send(a, { type: "ready" });
     send(b, { type: "ready" });
@@ -110,9 +131,18 @@ describe("ws-server integration", () => {
     const a = await connect();
     const b = await connect();
 
-    send(a, { type: "create", name: "Alice" });
+    send(a, {
+      type: "create",
+      name: "Alice",
+      character: { style: "adventurer", seed: "alice" },
+    });
     const created = await nextMessage(a, "created");
-    send(b, { type: "join", code: created.code, name: "Bob" });
+    send(b, {
+      type: "join",
+      code: created.code,
+      name: "Bob",
+      character: { style: "bottts", seed: "bob" },
+    });
     await nextMessage(b, "joined");
 
     send(a, { type: "ready" });
@@ -136,7 +166,11 @@ describe("ws-server integration", () => {
     expect(err.reason).toBe("bad-message");
 
     // connection still usable afterwards
-    send(a, { type: "create", name: "Alice" });
+    send(a, {
+      type: "create",
+      name: "Alice",
+      character: { style: "adventurer", seed: "alice" },
+    });
     const created = await nextMessage(a, "created");
     expect(created.code.length).toBe(4);
 

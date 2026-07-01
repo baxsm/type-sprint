@@ -1,4 +1,6 @@
 import { z } from "zod";
+import type { Character } from "./types";
+import { characterSchema } from "./types";
 
 // mirror of the ws-server protocol, client side.
 // kept in sync manually since the two services do not share a package.
@@ -6,6 +8,7 @@ import { z } from "zod";
 export const playerViewSchema = z.object({
   id: z.string(),
   name: z.string(),
+  character: characterSchema,
   progress: z.number(),
   wpm: z.number(),
   ready: z.boolean(),
@@ -67,8 +70,8 @@ export const serverMessageSchema = z.discriminatedUnion("type", [
 export type ServerMessage = z.infer<typeof serverMessageSchema>;
 
 export type ClientMessage =
-  | { type: "create"; name: string }
-  | { type: "join"; code: string; name: string }
+  | { type: "create"; name: string; character: Character }
+  | { type: "join"; code: string; name: string; character: Character }
   | { type: "ready" }
   | { type: "progress"; progress: number; wpm: number }
   | { type: "finish"; wpm: number; accuracy: number }

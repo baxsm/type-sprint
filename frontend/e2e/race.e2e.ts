@@ -55,6 +55,18 @@ test("two windows race in real time", async ({ browser }) => {
   await pageA.getByRole("button", { name: "I'm ready" }).click();
   await pageB.getByRole("button", { name: "I'm ready" }).click();
 
+  // both players' avatars should render in both windows' race tracks - not
+  // just names - confirming the character pass-through actually renders,
+  // not just that it round-trips in isolated component/unit tests
+  await expect(pageA.locator("main img")).toHaveCount(2, { timeout: 10000 });
+  await expect(pageB.locator("main img")).toHaveCount(2, { timeout: 10000 });
+  const avatarSrcsA = await pageA.locator("main img").evaluateAll((els) =>
+    els.map((el) => el.getAttribute("src")),
+  );
+  for (const src of avatarSrcsA) {
+    expect(src).toMatch(/^data:image\/svg\+xml/);
+  }
+
   // the typing surface renders (disabled, with a "Get ready..." overlay)
   // during the countdown too. wait for that overlay to appear then clear
   // before typing, or keystrokes sent during the countdown get silently dropped.

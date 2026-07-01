@@ -3,16 +3,23 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
+import CharacterAvatar from "@/components/character-avatar";
 import Panel from "@/components/ui/panel";
+import type { Character } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export type Lane = {
   name: string;
+  character: Character;
   progress: number;
   wpm: number;
   isSelf: boolean;
   finished: boolean;
 };
+
+// falls back if a player object is somehow missing character data - should
+// not happen given the schema default, but the lane must not crash on it
+const DEFAULT_CHARACTER: Character = { style: "adventurer", seed: "guest" };
 
 const PlayerLane = ({ lane }: { lane: Lane }) => {
   const accent = lane.isSelf ? "var(--color-primary)" : "var(--color-opponent)";
@@ -52,10 +59,13 @@ const PlayerLane = ({ lane }: { lane: Lane }) => {
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between text-sm">
         <span className="flex min-w-0 items-center gap-2">
-          <span
-            className="h-2.5 w-2.5 shrink-0 border-[2px] border-[var(--color-ink)]"
-            style={{ backgroundColor: accent }}
-          />
+          <span className="inline-flex shrink-0 border-[2px]" style={{ borderColor: accent }}>
+            <CharacterAvatar
+              character={lane.character ?? DEFAULT_CHARACTER}
+              sizePx={26}
+              alt={lane.name}
+            />
+          </span>
           <span className="truncate font-semibold">
             {lane.name}
             {lane.isSelf && <span className="ml-1 text-[var(--color-dim)]">(you)</span>}

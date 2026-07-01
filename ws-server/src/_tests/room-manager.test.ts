@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import type { ServerMessage } from "../protocol";
+import type { Character, ServerMessage } from "../protocol";
 import { RoomManager } from "../room-manager";
 
 type Sent = { to: string; msg: ServerMessage };
+
+const aliceCharacter: Character = { style: "adventurer", seed: "alice" };
+const bobCharacter: Character = { style: "bottts", seed: "bob" };
 
 function setup() {
   const sent: Sent[] = [];
@@ -40,7 +43,7 @@ describe("RoomManager", () => {
   });
 
   it("creates a room and assigns the creator", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const created = lastOfType(sent, "p1", "created");
     expect(created).toBeDefined();
     expect(created?.code.length).toBe(4);
@@ -49,39 +52,56 @@ describe("RoomManager", () => {
   });
 
   it("lets a second player join", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const code = lastOfType(sent, "p1", "created")?.code as string;
-    manager.handle("p2", { type: "join", code, name: "Bob" });
+    manager.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
     const joined = lastOfType(sent, "p2", "joined");
     expect(joined?.code).toBe(code);
   });
 
-  it("rejects a third player as room-full", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+  it("includes each player's character in the room view broadcast to the opponent", () => {
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const code = lastOfType(sent, "p1", "created")?.code as string;
-    manager.handle("p2", { type: "join", code, name: "Bob" });
-    manager.handle("p3", { type: "join", code, name: "Carol" });
+    manager.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
+
+    const stateForP2 = lastOfType(sent, "p2", "state");
+    const alice = stateForP2?.room.players.find((p) => p.id === "p1");
+    const bob = stateForP2?.room.players.find((p) => p.id === "p2");
+    expect(alice?.character).toEqual(aliceCharacter);
+    expect(bob?.character).toEqual(bobCharacter);
+  });
+
+  it("rejects a third player as room-full", () => {
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
+    const code = lastOfType(sent, "p1", "created")?.code as string;
+    manager.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
+    manager.handle("p3", {
+      type: "join",
+      code,
+      name: "Carol",
+      character: { style: "thumbs", seed: "carol" },
+    });
     const err = lastOfType(sent, "p3", "error");
     expect(err?.reason).toBe("room-full");
   });
 
   it("rejects join with an unknown code", () => {
-    manager.handle("p2", { type: "join", code: "ZZZZ", name: "Bob" });
+    manager.handle("p2", { type: "join", code: "ZZZZ", name: "Bob", character: bobCharacter });
     const err = lastOfType(sent, "p2", "error");
     expect(err?.reason).toBe("room-not-found");
   });
 
   it("rejects create when already in a room", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const err = lastOfType(sent, "p1", "error");
     expect(err?.reason).toBe("already-in-room");
   });
 
   it("runs countdown then start when both ready", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const code = lastOfType(sent, "p1", "created")?.code as string;
-    manager.handle("p2", { type: "join", code, name: "Bob" });
+    manager.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
     manager.handle("p1", { type: "ready" });
     manager.handle("p2", { type: "ready" });
 
@@ -93,17 +113,17 @@ describe("RoomManager", () => {
   });
 
   it("does not start until both players are ready", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const code = lastOfType(sent, "p1", "created")?.code as string;
-    manager.handle("p2", { type: "join", code, name: "Bob" });
+    manager.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
     manager.handle("p1", { type: "ready" });
     expect(lastOfType(sent, "p1", "start")).toBeUndefined();
   });
 
   it("relays progress to the opponent only", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const code = lastOfType(sent, "p1", "created")?.code as string;
-    manager.handle("p2", { type: "join", code, name: "Bob" });
+    manager.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
     manager.handle("p1", { type: "ready" });
     manager.handle("p2", { type: "ready" });
 
@@ -125,9 +145,9 @@ describe("RoomManager", () => {
       schedule: (fn) => fn(),
       pickSnippet: () => "js-medium-001",
     });
-    local.handle("p1", { type: "create", name: "Alice" });
+    local.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const code = lastOfType(sent, "p1", "created")?.code as string;
-    local.handle("p2", { type: "join", code, name: "Bob" });
+    local.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
     local.handle("p1", { type: "ready" });
     local.handle("p2", { type: "ready" });
 
@@ -141,9 +161,9 @@ describe("RoomManager", () => {
   });
 
   it("lets the remaining player win when the opponent disconnects mid-race", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const code = lastOfType(sent, "p1", "created")?.code as string;
-    manager.handle("p2", { type: "join", code, name: "Bob" });
+    manager.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
     manager.handle("p1", { type: "ready" });
     manager.handle("p2", { type: "ready" });
 
@@ -156,9 +176,9 @@ describe("RoomManager", () => {
   });
 
   it("ends the race for both as soon as the first player finishes", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const code = lastOfType(sent, "p1", "created")?.code as string;
-    manager.handle("p2", { type: "join", code, name: "Bob" });
+    manager.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
     manager.handle("p1", { type: "ready" });
     manager.handle("p2", { type: "ready" });
 
@@ -175,9 +195,9 @@ describe("RoomManager", () => {
   });
 
   it("lets the sole remaining player win if the opponent disconnects before anyone finishes", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     const code = lastOfType(sent, "p1", "created")?.code as string;
-    manager.handle("p2", { type: "join", code, name: "Bob" });
+    manager.handle("p2", { type: "join", code, name: "Bob", character: bobCharacter });
     manager.handle("p1", { type: "ready" });
     manager.handle("p2", { type: "ready" });
 
@@ -189,7 +209,7 @@ describe("RoomManager", () => {
   });
 
   it("garbage collects a room when everyone disconnects", () => {
-    manager.handle("p1", { type: "create", name: "Alice" });
+    manager.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     expect(manager.roomCount()).toBe(1);
     manager.disconnect("p1");
     expect(manager.roomCount()).toBe(0);
@@ -203,7 +223,7 @@ describe("RoomManager", () => {
       schedule: (fn) => fn(),
       pickSnippet: () => "js-medium-001",
     });
-    local.handle("p1", { type: "create", name: "Alice" });
+    local.handle("p1", { type: "create", name: "Alice", character: aliceCharacter });
     // creator leaves the socket open but room ages; force an orphan by
     // disconnecting after making it non-empty is covered above. here we
     // simulate an aged empty room via sweep with a tiny max age.
