@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import RaceCountdown from "@/components/race-countdown";
 import RaceTrack, { type Lane } from "@/components/race-track";
 import TypingSurface, { type FinishPayload } from "@/components/typing-surface";
 import { getSnippetById } from "@/lib/snippets";
@@ -149,16 +150,7 @@ export default function RacePage() {
       )}
 
       {state.phase === "countdown" && state.countdown !== null && (
-        <div className="flex items-center justify-center py-6">
-          <motion.span
-            key={state.countdown}
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="font-mono text-6xl font-bold text-[var(--color-accent)]"
-          >
-            {state.countdown > 0 ? state.countdown : "Go"}
-          </motion.span>
-        </div>
+        <RaceCountdown value={state.countdown} />
       )}
 
       <TypingSurface

@@ -1,5 +1,8 @@
 "use client";
 
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
 export type Lane = {
@@ -12,6 +15,38 @@ export type Lane = {
 
 const PlayerLane = ({ lane }: { lane: Lane }) => {
   const accent = lane.isSelf ? "var(--color-accent)" : "var(--color-opponent)";
+  const fillRef = useRef<HTMLDivElement>(null);
+  const wasFinished = useRef(false);
+
+  useGSAP(
+    () => {
+      const fill = fillRef.current;
+      if (!fill) return;
+      gsap.to(fill, {
+        width: `${Math.min(100, Math.max(0, lane.progress))}%`,
+        duration: 0.25,
+        ease: "power2.out",
+      });
+
+      // a quick pulse the moment this lane crosses the finish line
+      if (lane.finished && !wasFinished.current) {
+        wasFinished.current = true;
+        gsap.fromTo(
+          fill,
+          { filter: "brightness(1)" },
+          {
+            filter: "brightness(1.6)",
+            duration: 0.15,
+            yoyo: true,
+            repeat: 3,
+            ease: "power1.inOut",
+          },
+        );
+      }
+    },
+    { dependencies: [lane.progress, lane.finished], scope: fillRef },
+  );
+
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between text-sm">
@@ -28,11 +63,9 @@ const PlayerLane = ({ lane }: { lane: Lane }) => {
       </div>
       <div className="h-3 w-full overflow-hidden rounded-full bg-[var(--color-surface-raised)]">
         <div
-          className={cn("h-full rounded-full transition-[width] duration-200 ease-out")}
-          style={{
-            width: `${Math.min(100, Math.max(0, lane.progress))}%`,
-            backgroundColor: accent,
-          }}
+          ref={fillRef}
+          className={cn("h-full rounded-full")}
+          style={{ width: 0, backgroundColor: accent }}
         />
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import gsap from "gsap";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { computeConsistency } from "@/lib/stats";
 import type { CharState, LiveStats, TypingState } from "@/lib/types";
@@ -33,6 +34,21 @@ const stateClass: Record<CharState, string> = {
   current: "text-[var(--color-fg)]",
 };
 
+// module-level so it never needs to appear in a hook's dependency array
+function measureCaretTarget(
+  target: HTMLElement | null,
+  container: HTMLElement | null,
+): { x: number; y: number; height: number } | null {
+  if (!target || !container) return null;
+  const targetRect = target.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  return {
+    x: targetRect.left - containerRect.left + container.scrollLeft,
+    y: targetRect.top - containerRect.top + container.scrollTop,
+    height: targetRect.height,
+  };
+}
+
 const TypingSurface = ({
   text,
   onProgress,
@@ -44,6 +60,7 @@ const TypingSurface = ({
   const sessionRef = useRef<TypingSession>(createTypingSession(text));
   const containerRef = useRef<HTMLDivElement>(null);
   const currentCharRef = useRef<HTMLSpanElement>(null);
+  const caretRef = useRef<HTMLSpanElement>(null);
   const finishedRef = useRef(false);
   const [state, setState] = useState<TypingState>(() => sessionRef.current.state());
   const [shakeIndex, setShakeIndex] = useState<number | null>(null);
@@ -128,6 +145,24 @@ const TypingSurface = ({
     currentCharRef.current?.scrollIntoView?.({ block: "nearest" });
   }, [state.caret]);
 
+  // slide the caret to the current character instead of teleporting between
+  // spans. one persistent element, animated by position, is the "smooth
+  // caret" feel typing tests are known for. on a text change (new snippet,
+  // restart) the caret snaps instantly instead of sliding across the screen.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: text is not read in the body, it only triggers a re-measure on snippet change
+  useEffect(() => {
+    const pos = measureCaretTarget(currentCharRef.current, containerRef.current);
+    if (!caretRef.current || !pos) return;
+    gsap.set(caretRef.current, pos);
+  }, [text]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: state.caret is not read in the body, it only triggers a re-measure on caret move
+  useEffect(() => {
+    const pos = measureCaretTarget(currentCharRef.current, containerRef.current);
+    if (!caretRef.current || !pos) return;
+    gsap.to(caretRef.current, { ...pos, duration: 0.09, ease: "power2.out" });
+  }, [state.caret]);
+
   const chars = [...text];
 
   return (
@@ -157,6 +192,16 @@ const TypingSurface = ({
           Click here and start typing
         </div>
       )}
+      {!state.done && (
+        <span
+          ref={caretRef}
+          className={cn(
+            "pointer-events-none absolute top-0 left-0 w-[2px] bg-[var(--color-accent)]",
+            focused ? "caret-idle" : "opacity-40",
+          )}
+          aria-hidden="true"
+        />
+      )}
       {chars.map((char, i) => {
         const cs = state.states[i] ?? "untyped";
         const isCurrent = i === state.caret;
@@ -168,15 +213,6 @@ const TypingSurface = ({
             ref={isCurrent ? currentCharRef : undefined}
             className={cn("relative", stateClass[cs], shakeIndex === i && "char-shake")}
           >
-            {isCurrent && (
-              <span
-                className={cn(
-                  "absolute -left-[1px] top-0 h-full w-[2px] bg-[var(--color-accent)]",
-                  focused ? "caret-idle" : "opacity-40",
-                )}
-                aria-hidden="true"
-              />
-            )}
             {showNewline ? (
               <>
                 <span

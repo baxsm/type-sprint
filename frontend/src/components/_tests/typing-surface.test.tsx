@@ -16,17 +16,18 @@ describe("TypingSurface", () => {
     render(<TypingSurface text="abc" />);
     fireEvent.keyDown(window, { key: "a" });
     const box = screen.getByRole("textbox");
-    // the first char should now carry the correct color class
-    const firstSpan = box.querySelector("span");
-    expect(firstSpan?.className).toContain("color-fg");
+    // the caret is a sibling span rendered before the characters, so target
+    // character spans specifically via [aria-hidden absent]
+    const charSpans = box.querySelectorAll("span:not([aria-hidden])");
+    expect(charSpans[0]?.className).toContain("color-fg");
   });
 
   it("marks an incorrect keystroke", () => {
     render(<TypingSurface text="abc" />);
     fireEvent.keyDown(window, { key: "z" });
     const box = screen.getByRole("textbox");
-    const firstSpan = box.querySelector("span");
-    expect(firstSpan?.className).toContain("color-bad");
+    const charSpans = box.querySelectorAll("span:not([aria-hidden])");
+    expect(charSpans[0]?.className).toContain("color-bad");
   });
 
   it("calls onProgress on each keystroke", () => {
