@@ -27,6 +27,9 @@ test-results/
 playwright-report/
 playwright/.cache/
 
+# typescript build info
+*.tsbuildinfo
+
 # os
 .DS_Store
 Thumbs.db
