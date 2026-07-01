@@ -38,6 +38,7 @@ describe("profile storage", () => {
     const p = loadProfile();
     expect(p.name).toBe("Guest");
     expect(p.lastLanguage).toBe("javascript");
+    expect(p.character).toEqual({ style: "adventurer", seed: "guest" });
   });
 
   it("round-trips a saved patch", () => {
@@ -50,6 +51,22 @@ describe("profile storage", () => {
   it("returns defaults on corrupted json", () => {
     localStorage.setItem("type-sprint:profile", "{not valid");
     expect(loadProfile().name).toBe("Guest");
+  });
+
+  it("defaults the character field for a pre-phase-8 profile missing it entirely", () => {
+    localStorage.setItem(
+      "type-sprint:profile",
+      JSON.stringify({ name: "Old User", lastLanguage: "python" }),
+    );
+    const p = loadProfile();
+    expect(p.name).toBe("Old User");
+    expect(p.character).toEqual({ style: "adventurer", seed: "guest" });
+  });
+
+  it("round-trips a saved character", () => {
+    saveProfile({ character: { style: "bottts", seed: "custom-seed" } });
+    const p = loadProfile();
+    expect(p.character).toEqual({ style: "bottts", seed: "custom-seed" });
   });
 });
 

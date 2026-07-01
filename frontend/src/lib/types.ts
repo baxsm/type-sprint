@@ -18,8 +18,27 @@ export const snippetSchema = z.object({
 
 export type Snippet = z.infer<typeof snippetSchema>;
 
+export const avatarStyleSchema = z.enum([
+  "adventurer",
+  "bottts",
+  "pixel-art",
+  "thumbs",
+  "notionists",
+  "big-smile",
+]);
+
+export type AvatarStyle = z.infer<typeof avatarStyleSchema>;
+
+export const characterSchema = z.object({
+  style: avatarStyleSchema.default("adventurer"),
+  seed: z.string().min(1).max(40),
+});
+
+export type Character = z.infer<typeof characterSchema>;
+
 export const profileSchema = z.object({
   name: z.string().min(1).max(24).default("Guest"),
+  character: characterSchema.default({ style: "adventurer", seed: "guest" }),
   lastLanguage: languageSchema.default("javascript"),
   lastDifficulty: difficultySchema.default("medium"),
   soundEnabled: z.boolean().default(true),

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import CharacterBadge from "@/components/character-badge";
 import ThemeToggle from "@/components/ui/theme-toggle";
 import { loadProfile } from "@/lib/storage";
+import type { Character } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -17,10 +19,13 @@ const links = [
 const Topbar = () => {
   const pathname = usePathname();
   const [name, setName] = useState("Guest");
+  const [character, setCharacter] = useState<Character>({ style: "adventurer", seed: "guest" });
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    setName(loadProfile().name);
+    const profile = loadProfile();
+    setName(profile.name);
+    setCharacter(profile.character);
   }, []);
 
   return (
@@ -55,7 +60,7 @@ const Topbar = () => {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-3 sm:flex">
-          <span className="text-sm text-[var(--color-dim)]">{name}</span>
+          <CharacterBadge character={character} name={name} />
           <ThemeToggle />
         </div>
 
