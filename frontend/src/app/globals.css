@@ -1,33 +1,81 @@
 @import "tailwindcss";
-@import "@heroui/styles";
 
 @theme {
   --font-mono: ui-monospace, "SF Mono", "Fira Code", "JetBrains Mono", Menlo,
     monospace;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 
-  /* surfaces */
-  --color-bg: #0b0d12;
-  --color-surface: #12151d;
-  --color-surface-raised: #191d28;
-  --color-border: #262b38;
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-ink: var(--color-ink);
+  --color-border: var(--color-border);
 
-  /* text */
-  --color-muted: #4b5266;
-  --color-dim: #8b93a7;
-  --color-fg: #e7ebf3;
+  --color-muted: var(--color-muted);
+  --color-dim: var(--color-dim);
+  --color-fg: var(--color-fg);
 
-  /* accents */
-  --color-accent: #4f7cff;
-  --color-accent-soft: #2b3a66;
-  --color-opponent: #ff7a59;
-  --color-good: #3ddc84;
-  --color-bad: #ff5c5c;
+  --color-primary: var(--color-primary);
+  --color-primary-fg: var(--color-primary-fg);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-opponent: var(--color-opponent);
+  --color-correct: var(--color-correct);
+  --color-incorrect: var(--color-incorrect);
+  --color-info: var(--color-info);
+
+  /* legacy aliases for components not yet moved to the new primitives (removed in phase 7) */
+  --color-accent: var(--color-primary);
+  --color-good: var(--color-correct);
+  --color-bad: var(--color-incorrect);
 }
 
 :root {
+  color-scheme: light;
+
+  /* surfaces */
+  --color-bg: oklch(0.97 0.015 90);
+  --color-surface: oklch(0.99 0.008 90);
+  --color-surface-raised: oklch(1 0 0);
+  --color-ink: oklch(0.2 0.02 260);
+  --color-border: var(--color-ink);
+
+  /* text */
+  --color-fg: oklch(0.2 0.02 260);
+  --color-dim: oklch(0.45 0.02 260);
+  --color-muted: oklch(0.6 0.015 260);
+
+  /* accents, tuned to similar chroma/lightness so none dominates */
+  --color-primary: oklch(0.62 0.22 265);
+  --color-primary-fg: oklch(0.98 0.01 265);
+  --color-accent-soft: oklch(0.9 0.05 265);
+  --color-opponent: oklch(0.68 0.19 40);
+  --color-correct: oklch(0.65 0.17 155);
+  --color-incorrect: oklch(0.62 0.22 25);
+  --color-info: oklch(0.75 0.15 95);
+}
+
+.dark {
   color-scheme: dark;
+
+  --color-bg: oklch(0.19 0.015 260);
+  --color-surface: oklch(0.24 0.018 260);
+  --color-surface-raised: oklch(0.28 0.02 260);
+  --color-ink: oklch(0.96 0.01 90);
+  --color-border: var(--color-ink);
+
+  --color-fg: oklch(0.96 0.01 90);
+  --color-dim: oklch(0.75 0.02 90);
+  --color-muted: oklch(0.58 0.02 260);
+
+  --color-primary: oklch(0.72 0.19 265);
+  --color-primary-fg: oklch(0.15 0.02 265);
+  --color-accent-soft: oklch(0.32 0.06 265);
+  --color-opponent: oklch(0.72 0.18 40);
+  --color-correct: oklch(0.72 0.16 155);
+  --color-incorrect: oklch(0.68 0.2 25);
+  --color-info: oklch(0.78 0.14 95);
 }
 
 html,

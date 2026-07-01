@@ -15,12 +15,27 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0d12",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f2ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#26293a" },
+  ],
 };
+
+const noFlashScript = `
+  try {
+    var stored = localStorage.getItem("type-sprint:theme");
+    var dark = stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    if (dark) document.documentElement.classList.add("dark");
+  } catch {}
+`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static inline script, no user input */}
+        <script dangerouslySetInnerHTML={{ __html: noFlashScript }} />
+      </head>
       <body>
         <div className="flex min-h-screen flex-col">
           <Topbar />

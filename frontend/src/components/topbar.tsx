@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import ThemeToggle from "@/components/ui/theme-toggle";
 import { loadProfile } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 
@@ -23,13 +24,13 @@ const Topbar = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b-[3px] border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2 font-mono text-lg font-bold tracking-tight"
         >
-          <span className="text-[var(--color-accent)]">type</span>
+          <span className="text-[var(--color-primary)]">type</span>
           <span className="-ml-2">sprint</span>
         </Link>
 
@@ -41,9 +42,9 @@ const Topbar = () => {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-sm transition-colors",
+                  "px-3 py-1.5 text-sm font-semibold transition-colors",
                   active
-                    ? "bg-[var(--color-accent-soft)] text-[var(--color-fg)]"
+                    ? "bg-[var(--color-accent-soft)] text-[var(--color-primary)]"
                     : "text-[var(--color-dim)] hover:text-[var(--color-fg)]",
                 )}
               >
@@ -53,43 +54,47 @@ const Topbar = () => {
           })}
         </nav>
 
-        <div className="hidden shrink-0 items-center gap-2 sm:flex">
+        <div className="hidden shrink-0 items-center gap-3 sm:flex">
           <span className="text-sm text-[var(--color-dim)]">{name}</span>
+          <ThemeToggle />
         </div>
 
-        <button
-          type="button"
-          aria-label="Toggle menu"
-          className="rounded-md p-2 text-[var(--color-dim)] sm:hidden"
-          onClick={() => setMenuOpen((o) => !o)}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            aria-hidden="true"
+        <div className="flex shrink-0 items-center gap-2 sm:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            aria-label="Toggle menu"
+            className="p-2 text-[var(--color-dim)]"
+            onClick={() => setMenuOpen((o) => !o)}
           >
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </button>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {menuOpen && (
-        <nav className="flex flex-col gap-1 border-t border-[var(--color-border)] px-4 py-2 sm:hidden">
+        <nav className="flex flex-col gap-1 border-t-[3px] border-[var(--color-border)] px-4 py-2 sm:hidden">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
               className={cn(
-                "rounded-md px-3 py-2 text-sm",
+                "px-3 py-2 text-sm font-semibold",
                 pathname === link.href
-                  ? "bg-[var(--color-accent-soft)] text-[var(--color-fg)]"
+                  ? "bg-[var(--color-accent-soft)] text-[var(--color-primary)]"
                   : "text-[var(--color-dim)]",
               )}
             >
