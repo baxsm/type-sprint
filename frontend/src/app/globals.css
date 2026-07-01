@@ -1,0 +1,87 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+@theme {
+  --font-mono: ui-monospace, "SF Mono", "Fira Code", "JetBrains Mono", Menlo,
+    monospace;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+
+  /* surfaces */
+  --color-bg: #0b0d12;
+  --color-surface: #12151d;
+  --color-surface-raised: #191d28;
+  --color-border: #262b38;
+
+  /* text */
+  --color-muted: #4b5266;
+  --color-dim: #8b93a7;
+  --color-fg: #e7ebf3;
+
+  /* accents */
+  --color-accent: #4f7cff;
+  --color-accent-soft: #2b3a66;
+  --color-opponent: #ff7a59;
+  --color-good: #3ddc84;
+  --color-bad: #ff5c5c;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+}
+
+body {
+  min-height: 100vh;
+}
+
+/* the typing caret blink when idle */
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.caret-idle {
+  animation: caret-blink 1s step-end infinite;
+}
+
+/* quick error flash on a mistyped character */
+@keyframes char-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1px);
+  }
+  75% {
+    transform: translateX(1px);
+  }
+}
+
+.char-shake {
+  animation: char-shake 0.12s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret-idle,
+  .char-shake {
+    animation: none;
+  }
+}
+
+/* keep focus rings on real interactive elements only */
+:focus:not(:focus-visible) {
+  outline: none;
+}
