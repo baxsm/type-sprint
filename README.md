@@ -1,5 +1,9 @@
 # type-sprint
 
+<p align="center">
+  <img src="assets/logo.svg" alt="type-sprint" width="280">
+</p>
+
 > A typing speed game for code and prose. Practice solo, take the daily challenge, or race a friend in real time.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
@@ -15,19 +19,21 @@ Type at your own pace, take a daily challenge everyone gets the same snippet for
 
 ## Features
 
+- **Landing page**: a marketing page at `/` with a GSAP-driven hero typing demo, feature and how-it-works sequences, and a character showcase, separate from the app itself
 - **Solo practice** with difficulty levels and language modes (JavaScript, Python, English prose)
 - **Live typing surface**: per-character feedback, a smooth sliding caret, real-time WPM and accuracy
-- **Daily challenge**: the same snippet for everyone on a given date, with a local personal best
+- **Daily challenge**: the same snippet for everyone on a given date, with a streak calendar and a local personal best
 - **Real-time race**: open a second window, share a 4-letter code, and race over a real WebSocket connection with a live opponent progress bar
-- **Personal stats and history**: best/average WPM, accuracy trends, per-language breakdown, stored locally in the browser
+- **Character avatars**: DiceBear-rendered avatars, shared between the profile, race lanes, and landing page showcase
+- **Interactive stats**: Recharts-based WPM-over-time and per-language charts with real hover detail, plus best/average/accuracy history, stored locally in the browser
 
 ## Tech
 
 | Layer | Choice |
 | --- | --- |
-| Frontend | Next.js (App Router) + Tailwind CSS |
-| Components | HeroUI |
-| Animation | GSAP for game-feel moments (caret, countdown, race lanes), Motion for simple UI transitions |
+| Frontend | Next.js (App Router) + Tailwind CSS, hand-rolled neobrutalist UI primitives |
+| Animation | GSAP for game-feel moments (caret, countdown, race lanes, hero demo), Motion for scroll reveals and UI transitions |
+| Charts | Recharts, styled to the app's own design tokens |
 | Realtime | Socket.IO (Bun server, `@socket.io/bun-engine`), room-based races |
 | Data | No database. Stats and history live in `localStorage`, validated with Zod |
 | Testing | Vitest + Testing Library (unit/component), Playwright (e2e), Bun test (server) |
@@ -52,7 +58,7 @@ bun install
 bun run dev
 ```
 
-Open `http://localhost:3000/race` in two browser windows. Create a race in one, share the 4-letter code, join it in the other, and race.
+Open `http://localhost:3000` for the landing page, or `http://localhost:3000/app/race` in two browser windows. Create a race in one, share the 4-letter code, join it in the other, and race.
 
 ## Project structure
 

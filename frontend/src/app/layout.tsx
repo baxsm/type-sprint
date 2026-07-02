@@ -1,15 +1,36 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const title = "type-sprint";
+const description =
+  "A typing speed game. Race code and prose, track your WPM, and challenge a friend in real time.";
+
 export const metadata: Metadata = {
-  title: "type-sprint",
-  description:
-    "A typing speed game. Race code and prose, track your WPM, and challenge a friend in real time.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: title,
+    template: `%s - ${title}`,
+  },
+  description,
+  applicationName: title,
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
-    title: "type-sprint",
-    description:
-      "A typing speed game. Race code and prose, track your WPM, and challenge a friend in real time.",
+    title,
+    description,
     type: "website",
+    url: siteUrl,
+    siteName: title,
+    images: [{ url: "/opengraph-image.png", width: 1200, height: 630, alt: title }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: ["/opengraph-image.png"],
   },
 };
 
