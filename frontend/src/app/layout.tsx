@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   },
   description,
   applicationName: title,
+  alternates: {
+    canonical: "/",
+  },
   robots: {
     index: true,
     follow: true,

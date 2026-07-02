@@ -40,20 +40,22 @@ const HowItWorksSequence = () => {
             <Subtitle className="mt-3">Four steps. No setup.</Subtitle>
           </motion.div>
 
-          <ol className="mt-12 grid gap-6 sm:grid-cols-2">
+          <ol className="mt-12">
             {steps.map((step, index) => (
               <motion.li
                 key={step.number}
-                className="flex flex-col gap-2 border-[3px] border-[var(--color-border)] bg-[var(--color-surface-raised)] p-5 shadow-[4px_4px_0_0_var(--color-ink)]"
+                className="grid grid-cols-[3rem_1fr] gap-x-5 border-t-[3px] border-[var(--color-border)] py-6 first:border-t-0"
                 {...fadeUpDelay(index * 0.08)}
               >
                 <span className="font-mono text-3xl font-bold text-[var(--color-primary)] tabular-nums">
                   {step.number}
                 </span>
-                <Title as="h3" className="text-lg">
-                  {step.title}
-                </Title>
-                <Subtitle className="text-sm">{step.description}</Subtitle>
+                <div>
+                  <Title as="h3" className="text-lg">
+                    {step.title}
+                  </Title>
+                  <Subtitle className="mt-1 text-sm">{step.description}</Subtitle>
+                </div>
               </motion.li>
             ))}
           </ol>

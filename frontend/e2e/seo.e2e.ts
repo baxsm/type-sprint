@@ -9,6 +9,9 @@ test("landing page has a favicon link and correct title/description", async ({ p
 
   const description = page.locator('meta[name="description"]');
   await expect(description).toHaveAttribute("content", /typing speed game/i);
+
+  const canonical = page.locator('link[rel="canonical"]');
+  await expect(canonical).toHaveAttribute("href", "http://localhost:3000");
 });
 
 test("open graph and twitter card metadata are present", async ({ page }) => {
