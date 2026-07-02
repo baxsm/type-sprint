@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import LanguageBreakdownChart from "@/components/language-breakdown-chart";
 import Button from "@/components/ui/button";
 import Panel from "@/components/ui/panel";
 import { Label, Subtitle, Title, Value } from "@/components/ui/typography";
@@ -88,22 +89,27 @@ export default function StatsPage() {
         <WpmChart data={series} />
       </section>
 
-      {langStats.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <Label>By language</Label>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {langStats.map((ls) => (
-              <Panel key={ls.language} className="flex flex-col gap-1 p-4">
-                <span className="font-semibold">{languageLabels[ls.language] ?? ls.language}</span>
-                <span className="text-sm text-[var(--color-dim)]">
-                  {ls.runs} {ls.runs === 1 ? "run" : "runs"} - best {ls.bestWpm} - avg {ls.avgWpm}{" "}
-                  WPM
-                </span>
-              </Panel>
-            ))}
-          </div>
-        </section>
-      )}
+      <section className="flex flex-col gap-3">
+        <Label>By language</Label>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <LanguageBreakdownChart data={langStats} />
+          {langStats.length > 0 && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              {langStats.map((ls) => (
+                <Panel key={ls.language} className="flex flex-col gap-1 p-4">
+                  <span className="font-semibold">
+                    {languageLabels[ls.language] ?? ls.language}
+                  </span>
+                  <span className="text-sm text-[var(--color-dim)]">
+                    {ls.runs} {ls.runs === 1 ? "run" : "runs"} - best {ls.bestWpm} - avg {ls.avgWpm}{" "}
+                    WPM
+                  </span>
+                </Panel>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
       <section className="flex flex-col gap-3">
         <Label>Recent runs</Label>

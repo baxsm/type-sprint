@@ -1,12 +1,46 @@
 "use client";
 
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  type TooltipContentProps,
+  XAxis,
+  YAxis,
+} from "recharts";
+import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import Panel from "@/components/ui/panel";
+import type { WpmSeriesPoint } from "@/lib/analytics";
+import { formatDate } from "@/lib/utils";
 
 type WpmChartProps = {
-  data: { x: number; wpm: number }[];
+  data: WpmSeriesPoint[];
 };
 
-// lightweight inline svg line chart, no chart library needed
+const languageLabels: Record<string, string> = {
+  javascript: "JavaScript",
+  python: "Python",
+  prose: "Prose",
+};
+
+const ChartTooltip = ({ active, payload }: TooltipContentProps<ValueType, NameType>) => {
+  if (!active || !payload?.length) return null;
+  const point = payload[0]?.payload as WpmSeriesPoint | undefined;
+  if (!point) return null;
+
+  return (
+    <div className="border-[3px] border-[var(--color-border)] bg-[var(--color-surface-raised)] px-3 py-2 text-sm shadow-[4px_4px_0_0_var(--color-ink)]">
+      <div className="font-mono text-lg font-bold text-[var(--color-primary)]">{point.wpm} WPM</div>
+      <div className="text-[var(--color-dim)]">
+        {languageLabels[point.language] ?? point.language} - {point.mode}
+      </div>
+      <div className="text-[var(--color-muted)]">{formatDate(point.finishedAt)}</div>
+    </div>
+  );
+};
+
 const WpmChart = ({ data }: WpmChartProps) => {
   if (data.length < 2) {
     return (
@@ -16,50 +50,35 @@ const WpmChart = ({ data }: WpmChartProps) => {
     );
   }
 
-  const width = 600;
-  const height = 160;
-  const pad = 12;
-  const maxWpm = Math.max(...data.map((d) => d.wpm), 1);
-  const stepX = (width - pad * 2) / (data.length - 1);
-
-  const points = data.map((d, i) => {
-    const x = pad + i * stepX;
-    const y = height - pad - (d.wpm / maxWpm) * (height - pad * 2);
-    return { x, y };
-  });
-
-  const path = points
-    .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
-    .join(" ");
-
-  const areaPath = `${path} L ${points[points.length - 1]?.x.toFixed(1)} ${
-    height - pad
-  } L ${points[0]?.x.toFixed(1)} ${height - pad} Z`;
-
   return (
-    <Panel className="p-4">
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="h-40 w-full"
-        preserveAspectRatio="none"
-        role="img"
-        aria-label="WPM over time"
-      >
-        <title>WPM over time</title>
-        <path d={areaPath} fill="var(--color-primary)" opacity="0.12" />
-        <path
-          d={path}
-          fill="none"
-          stroke="var(--color-primary)"
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-        {points.map((p, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: points are a fixed ordered series
-          <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="var(--color-primary)" />
-        ))}
-      </svg>
+    <Panel className="h-52 p-4" data-testid="wpm-chart">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <defs>
+            <linearGradient id="wpmFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.25} />
+              <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" vertical={false} />
+          <XAxis dataKey="x" hide />
+          <YAxis
+            stroke="var(--color-muted)"
+            tick={{ fill: "var(--color-muted)", fontSize: 12 }}
+            width={36}
+          />
+          <Tooltip content={ChartTooltip} cursor={{ stroke: "var(--color-primary)" }} />
+          <Area
+            type="monotone"
+            dataKey="wpm"
+            stroke="var(--color-primary)"
+            strokeWidth={2}
+            fill="url(#wpmFill)"
+            activeDot={{ r: 4, fill: "var(--color-primary)" }}
+            dot={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </Panel>
   );
 };

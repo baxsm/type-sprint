@@ -73,12 +73,20 @@ test("capture stats empty and populated", async ({ page }) => {
     fullPage: true,
   });
 
-  // populate a run then re-capture
+  // populate two runs across languages so both charts have something to draw
   await page.goto("/practice?lang=prose&diff=easy");
   await typeTargetText(page);
   await expect(page.getByText("Try again")).toBeVisible();
+
+  await page.goto("/practice?lang=javascript&diff=easy");
+  await typeTargetText(page);
+  await expect(page.getByText("Try again")).toBeVisible();
+
   await page.goto("/stats");
   await expect(page.getByRole("heading", { name: "Your Stats" })).toBeVisible();
+  await expect(page.getByTestId("wpm-chart")).toBeVisible();
+  // recharts animates bars/lines growing in on mount, let it settle before capturing
+  await page.waitForTimeout(500);
   await page.screenshot({
     path: "e2e/screenshots/stats-populated.png",
     fullPage: true,

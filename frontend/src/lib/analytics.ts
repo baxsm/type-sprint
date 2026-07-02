@@ -55,9 +55,23 @@ export function byLanguage(runs: Run[]): LanguageStat[] {
   return result.sort((a, b) => b.runs - a.runs);
 }
 
+export type WpmSeriesPoint = {
+  x: number;
+  wpm: number;
+  finishedAt: number;
+  language: Language;
+  mode: Run["mode"];
+};
+
 // oldest to newest, for plotting progress over time
-export function wpmSeries(runs: Run[], limit = 30): { x: number; wpm: number }[] {
+export function wpmSeries(runs: Run[], limit = 30): WpmSeriesPoint[] {
   const sorted = [...runs].sort((a, b) => a.finishedAt - b.finishedAt);
   const sliced = sorted.slice(-limit);
-  return sliced.map((run, i) => ({ x: i, wpm: run.wpm }));
+  return sliced.map((run, i) => ({
+    x: i,
+    wpm: run.wpm,
+    finishedAt: run.finishedAt,
+    language: run.language,
+    mode: run.mode,
+  }));
 }

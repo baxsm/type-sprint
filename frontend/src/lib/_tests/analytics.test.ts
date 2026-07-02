@@ -69,4 +69,13 @@ describe("wpmSeries", () => {
     const runs = Array.from({ length: 40 }, (_, i) => makeRun({ finishedAt: i * 1000, wpm: i }));
     expect(wpmSeries(runs, 10).length).toBe(10);
   });
+
+  it("carries date, language, and mode for tooltip detail", () => {
+    const series = wpmSeries([
+      makeRun({ finishedAt: 1000, wpm: 42, language: "python", mode: "daily" }),
+    ]);
+    expect(series[0]?.finishedAt).toBe(1000);
+    expect(series[0]?.language).toBe("python");
+    expect(series[0]?.mode).toBe("daily");
+  });
 });
