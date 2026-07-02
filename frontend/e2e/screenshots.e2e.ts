@@ -38,12 +38,32 @@ test("capture practice mid-run and results", async ({ page }) => {
   });
 });
 
-test("capture daily", async ({ page }) => {
+test("capture daily empty history", async ({ page }) => {
   await page.goto("/daily");
   await expect(
     page.getByRole("heading", { name: "Daily Challenge" }),
   ).toBeVisible();
-  await page.screenshot({ path: "e2e/screenshots/daily.png", fullPage: true });
+  await page.screenshot({ path: "e2e/screenshots/daily-empty.png", fullPage: true });
+});
+
+test("capture daily short streak", async ({ page }) => {
+  await page.goto("/daily");
+  await seedDailyStreak(page, [-1, -2, -3]);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Daily Challenge" }),
+  ).toBeVisible();
+  await page.screenshot({ path: "e2e/screenshots/daily-short-streak.png", fullPage: true });
+});
+
+test("capture daily broken streak", async ({ page }) => {
+  await page.goto("/daily");
+  await seedDailyStreak(page, [-2, -3, -4, -10, -11]);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Daily Challenge" }),
+  ).toBeVisible();
+  await page.screenshot({ path: "e2e/screenshots/daily-broken-streak.png", fullPage: true });
 });
 
 test("capture stats empty and populated", async ({ page }) => {
@@ -85,6 +105,33 @@ test("capture mobile home", async ({ page }) => {
     fullPage: true,
   });
 });
+
+// seeds localStorage daily results for the given day offsets from today (e.g. -1 = yesterday)
+async function seedDailyStreak(
+  page: import("@playwright/test").Page,
+  offsets: number[],
+): Promise<void> {
+  await page.evaluate((dayOffsets: number[]) => {
+    const store: Record<string, unknown> = {};
+    for (const offset of dayOffsets) {
+      const date = new Date();
+      date.setDate(date.getDate() + offset);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      const dateStr = `${y}-${m}-${d}`;
+      store[dateStr] = {
+        date: dateStr,
+        snippetId: "js-easy-001",
+        bestWpm: 60 + Math.abs(offset) * 3,
+        bestAccuracy: 95,
+        attempts: 1,
+        updatedAt: Date.now(),
+      };
+    }
+    window.localStorage.setItem("type-sprint:daily", JSON.stringify(store));
+  }, offsets);
+}
 
 async function typeRest(
   page: import("@playwright/test").Page,

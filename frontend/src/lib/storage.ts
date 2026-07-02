@@ -79,7 +79,7 @@ export function clearRuns(): void {
   writeJson(KEYS.runs, []);
 }
 
-function loadDailyStore(): Record<string, DailyResult> {
+export function loadDailyStore(): Record<string, DailyResult> {
   const parsed = dailyStoreSchema.safeParse(readJson(KEYS.daily));
   if (parsed.success) return parsed.data;
   return {};

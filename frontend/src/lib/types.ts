@@ -78,6 +78,12 @@ export type DailyResult = z.infer<typeof dailyResultSchema>;
 export const dailyStoreSchema = z.record(z.string(), dailyResultSchema);
 export type DailyStore = z.infer<typeof dailyStoreSchema>;
 
+export type DailyStreak = {
+  current: number;
+  longest: number;
+  playedDates: string[];
+};
+
 // per-character state on the typing surface
 export type CharState = "untyped" | "correct" | "incorrect" | "current";
 
