@@ -12,20 +12,38 @@
 ![Tests](https://img.shields.io/badge/tests-100%2B%20passing-27c93f)
 
 <p align="center">
-  <img src="assets/demo.svg" alt="type-sprint race just finished, two players raced a JavaScript snippet and Alex won with 88 WPM" width="700">
+  <img src="assets/screenshots/landing.png" alt="type-sprint landing page: hero with a live typing demo, feature list, how it works, and a character showcase" width="800">
 </p>
 
 Type at your own pace, take a daily challenge everyone gets the same snippet for, or open a second window and race a friend live. Every keystroke is scored in real time: WPM, accuracy, consistency, and errors, with per-character feedback and a caret that follows exactly where you are.
 
 ## Features
 
-- **Landing page**: a marketing page at `/` with a GSAP-driven hero typing demo, feature and how-it-works sequences, and a character showcase, separate from the app itself
-- **Solo practice** with difficulty levels and language modes (JavaScript, Python, English prose)
-- **Live typing surface**: per-character feedback, a smooth sliding caret, real-time WPM and accuracy
-- **Daily challenge**: the same snippet for everyone on a given date, with a streak calendar and a local personal best
-- **Real-time race**: open a second window, share a 4-letter code, and race over a real WebSocket connection with a live opponent progress bar
-- **Character avatars**: DiceBear-rendered avatars, shared between the profile, race lanes, and landing page showcase
-- **Interactive stats**: Recharts-based WPM-over-time and per-language charts with real hover detail, plus best/average/accuracy history, stored locally in the browser
+**Solo practice** - pick a language and difficulty, type at your own pace. Per-character feedback, a smooth sliding caret, and a full results breakdown on every run.
+
+<p align="center">
+  <img src="assets/screenshots/practice-results.png" alt="Practice results panel showing WPM, accuracy, consistency, raw WPM, errors, and elapsed time" width="700">
+</p>
+
+**Daily challenge** - the same snippet for everyone, once a day. Past days are locked in and read-only, today is playable, and a streak calendar tracks your current and longest runs.
+
+<p align="center">
+  <img src="assets/screenshots/daily-streak.png" alt="Daily challenge page with a streak calendar showing completed, missed, and today's cell, plus current and longest streak" width="700">
+</p>
+
+**Interactive stats** - Recharts-based WPM-over-time and per-language charts with real hover detail, plus best/average/accuracy history and a full run log. All derived from local history, no server round trip.
+
+<p align="center">
+  <img src="assets/screenshots/stats.png" alt="Stats page with a WPM-over-time area chart, a per-language bar chart, and a table of recent runs" width="700">
+</p>
+
+**Real-time race** - open a room, share a 4-letter code, and race a friend over a real WebSocket connection with live opponent progress.
+
+<p align="center">
+  <img src="assets/screenshots/race-lobby.png" alt="Race lobby with a name field, character badge, create-a-race panel, and join-a-race panel" width="700">
+</p>
+
+**Character avatars** - DiceBear-rendered avatars, shared between the profile, race lanes, and the landing page's character showcase.
 
 ## Tech
 
