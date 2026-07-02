@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { typeTargetText } from "./helpers";
 
 test("complete a full practice run and see results", async ({ page }) => {
-  await page.goto("/practice?lang=javascript&diff=easy");
+  await page.goto("/app/practice?lang=javascript&diff=easy");
   await expect(page.getByRole("textbox", { name: "Typing area" })).toBeVisible();
 
   await typeTargetText(page);
@@ -13,18 +13,18 @@ test("complete a full practice run and see results", async ({ page }) => {
 });
 
 test("run is saved to stats after completion", async ({ page }) => {
-  await page.goto("/practice?lang=javascript&diff=easy");
+  await page.goto("/app/practice?lang=javascript&diff=easy");
   await typeTargetText(page);
   await expect(page.getByText("Try again")).toBeVisible();
 
-  await page.goto("/stats");
+  await page.goto("/app/stats");
   await expect(page.getByRole("heading", { name: "Your Stats" })).toBeVisible();
   // the runs table should have at least one row
   await expect(page.getByRole("cell", { name: "practice" }).first()).toBeVisible();
 });
 
 test("new snippet button loads a different snippet", async ({ page }) => {
-  await page.goto("/practice?lang=javascript&diff=medium");
+  await page.goto("/app/practice?lang=javascript&diff=medium");
   const box = page.getByRole("textbox", { name: "Typing area" });
   const first = await box.getAttribute("data-target");
   await page.getByRole("button", { name: "New snippet" }).click();
@@ -36,7 +36,7 @@ test("new snippet button loads a different snippet", async ({ page }) => {
 });
 
 test("daily persists a personal best across reloads", async ({ page }) => {
-  await page.goto("/daily");
+  await page.goto("/app/daily");
   await expect(page.getByRole("heading", { name: "Daily Challenge" })).toBeVisible();
   await typeTargetText(page);
   await expect(page.getByText("Try again")).toBeVisible();
@@ -46,7 +46,7 @@ test("daily persists a personal best across reloads", async ({ page }) => {
 });
 
 test("completes a snippet with a real Tab keypress for indentation", async ({ page }) => {
-  await page.goto("/practice?lang=javascript&diff=medium");
+  await page.goto("/app/practice?lang=javascript&diff=medium");
   const box = page.getByRole("textbox", { name: "Typing area" });
 
   // js-medium snippets include one with a tab indent - cycle until we get it

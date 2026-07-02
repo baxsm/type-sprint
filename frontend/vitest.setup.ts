@@ -44,3 +44,27 @@ class MockResizeObserver {
 }
 
 globalThis.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
+
+// jsdom has no IntersectionObserver, which motion/react's whileInView scroll
+// reveals need. fire every entry as intersecting immediately so in-view content
+// renders synchronously in tests instead of staying hidden forever.
+class MockIntersectionObserver {
+  callback: IntersectionObserverCallback;
+  constructor(callback: IntersectionObserverCallback) {
+    this.callback = callback;
+  }
+  observe(target: Element) {
+    this.callback(
+      [{ target, isIntersecting: true, intersectionRatio: 1 } as IntersectionObserverEntry],
+      this as unknown as IntersectionObserver,
+    );
+  }
+  unobserve() {}
+  disconnect() {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+}
+
+globalThis.IntersectionObserver =
+  MockIntersectionObserver as unknown as typeof IntersectionObserver;

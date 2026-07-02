@@ -3,14 +3,68 @@ import { typeTargetText } from "./helpers";
 
 // captures key UI states for visual review. artifacts go to e2e/screenshots.
 
-test("capture home", async ({ page }) => {
+// motion's whileInView reveals only fire once an element actually crosses into
+// the viewport. a single scrollIntoViewIfNeeded jump skips past content between
+// the old and new scroll position without ever putting it in view, so below-fold
+// sections stay at opacity 0 in a fullPage screenshot. walk the page in steps so
+// every section's reveal genuinely fires, the same way a real visitor scrolling
+// down would trigger it.
+async function scrollThrough(page: import("@playwright/test").Page): Promise<void> {
+  const total = await page.evaluate(() => document.body.scrollHeight);
+  for (let y = 0; y <= total; y += 300) {
+    await page.evaluate((offset) => window.scrollTo(0, offset), y);
+    await page.waitForTimeout(150);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+}
+
+test("capture landing page, light and dark, desktop and mobile", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await page.screenshot({ path: "e2e/screenshots/home.png", fullPage: true });
+  await scrollThrough(page);
+
+  const startedDark = await page.locator("html").evaluate((el) => el.classList.contains("dark"));
+  await page.screenshot({
+    path: `e2e/screenshots/landing-${startedDark ? "dark" : "light"}.png`,
+    fullPage: true,
+  });
+
+  await page.getByRole("button", { name: /switch to/i }).click();
+  await page.screenshot({
+    path: `e2e/screenshots/landing-${startedDark ? "light" : "dark"}.png`,
+    fullPage: true,
+  });
+
+  await page.setViewportSize({ width: 380, height: 800 });
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await scrollThrough(page);
+  await page.screenshot({ path: "e2e/screenshots/landing-mobile.png", fullPage: true });
+});
+
+test("capture landing sections individually", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await scrollThrough(page);
+
+  const sections = [
+    { name: "hero", heading: /type faster/i },
+    { name: "feature-sequence", heading: /everything you need to get faster/i },
+    { name: "how-it-works", heading: "How it works" },
+    { name: "character-showcase", heading: /pick a face for your speed/i },
+    { name: "closing-cta", heading: /ready to see your number/i },
+  ];
+
+  for (const section of sections) {
+    const heading = page.getByRole("heading", { name: section.heading });
+    await heading.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: `e2e/screenshots/landing-${section.name}.png` });
+  }
 });
 
 test("capture practice mid-run and results", async ({ page }) => {
-  await page.goto("/practice?lang=javascript&diff=medium");
+  await page.goto("/app/practice?lang=javascript&diff=medium");
   const box = page.getByRole("textbox", { name: "Typing area" });
   await box.click();
 
@@ -39,7 +93,7 @@ test("capture practice mid-run and results", async ({ page }) => {
 });
 
 test("capture daily empty history", async ({ page }) => {
-  await page.goto("/daily");
+  await page.goto("/app/daily");
   await expect(
     page.getByRole("heading", { name: "Daily Challenge" }),
   ).toBeVisible();
@@ -47,7 +101,7 @@ test("capture daily empty history", async ({ page }) => {
 });
 
 test("capture daily short streak", async ({ page }) => {
-  await page.goto("/daily");
+  await page.goto("/app/daily");
   await seedDailyStreak(page, [-1, -2, -3]);
   await page.reload();
   await expect(
@@ -57,7 +111,7 @@ test("capture daily short streak", async ({ page }) => {
 });
 
 test("capture daily broken streak", async ({ page }) => {
-  await page.goto("/daily");
+  await page.goto("/app/daily");
   await seedDailyStreak(page, [-2, -3, -4, -10, -11]);
   await page.reload();
   await expect(
@@ -67,22 +121,22 @@ test("capture daily broken streak", async ({ page }) => {
 });
 
 test("capture stats empty and populated", async ({ page }) => {
-  await page.goto("/stats");
+  await page.goto("/app/stats");
   await page.screenshot({
     path: "e2e/screenshots/stats-empty.png",
     fullPage: true,
   });
 
   // populate two runs across languages so both charts have something to draw
-  await page.goto("/practice?lang=prose&diff=easy");
+  await page.goto("/app/practice?lang=prose&diff=easy");
   await typeTargetText(page);
   await expect(page.getByText("Try again")).toBeVisible();
 
-  await page.goto("/practice?lang=javascript&diff=easy");
+  await page.goto("/app/practice?lang=javascript&diff=easy");
   await typeTargetText(page);
   await expect(page.getByText("Try again")).toBeVisible();
 
-  await page.goto("/stats");
+  await page.goto("/app/stats");
   await expect(page.getByRole("heading", { name: "Your Stats" })).toBeVisible();
   await expect(page.getByTestId("wpm-chart")).toBeVisible();
   // recharts animates bars/lines growing in on mount, let it settle before capturing
@@ -94,7 +148,7 @@ test("capture stats empty and populated", async ({ page }) => {
 });
 
 test("capture race lobby", async ({ page }) => {
-  await page.goto("/race");
+  await page.goto("/app/race");
   await expect(
     page.getByRole("heading", { name: "Race", exact: true }),
   ).toBeVisible();
@@ -104,12 +158,12 @@ test("capture race lobby", async ({ page }) => {
   });
 });
 
-test("capture mobile home", async ({ page }) => {
+test("capture mobile app home", async ({ page }) => {
   await page.setViewportSize({ width: 380, height: 800 });
-  await page.goto("/");
+  await page.goto("/app");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await page.screenshot({
-    path: "e2e/screenshots/home-mobile.png",
+    path: "e2e/screenshots/app-home-mobile.png",
     fullPage: true,
   });
 });

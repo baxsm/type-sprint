@@ -40,8 +40,8 @@ test("two windows race in real time", async ({ browser }) => {
   const pageA = await ctxA.newPage();
   const pageB = await ctxB.newPage();
 
-  await pageA.goto("/race");
-  await pageB.goto("/race");
+  await pageA.goto("/app/race");
+  await pageB.goto("/app/race");
 
   await pageA.getByRole("button", { name: "Create race" }).click();
   const code = await pageA

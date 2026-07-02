@@ -13,7 +13,7 @@ type CharacterBadgeProps = {
 
 const CharacterBadge = ({ character, name, className }: CharacterBadgeProps) => (
   <Link
-    href="/character"
+    href="/app/character"
     className={cn(
       "flex items-center gap-2 border-[2px] border-transparent px-1 py-0.5 transition-colors hover:border-[var(--color-border)]",
       className,

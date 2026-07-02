@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("pick a character, shuffle, save, and it persists across reload", async ({ page }) => {
-  await page.goto("/character");
+  await page.goto("/app/character");
   await expect(page.getByRole("heading", { name: "Character" })).toBeVisible();
 
   await page.getByRole("button", { name: /bottts/i }).click();
@@ -16,7 +16,7 @@ test("pick a character, shuffle, save, and it persists across reload", async ({ 
 
   const savedSeed = await seedInput.inputValue();
 
-  await page.goto("/");
+  await page.goto("/app");
   const topbarAvatar = page.locator("header img");
   await expect(topbarAvatar).toBeVisible();
   const topbarSrc = await topbarAvatar.getAttribute("src");
@@ -24,6 +24,6 @@ test("pick a character, shuffle, save, and it persists across reload", async ({ 
   await page.reload();
   await expect(topbarAvatar).toHaveAttribute("src", topbarSrc ?? "");
 
-  await page.goto("/character");
+  await page.goto("/app/character");
   await expect(page.getByLabel("Seed")).toHaveValue(savedSeed);
 });

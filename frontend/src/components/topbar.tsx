@@ -10,10 +10,10 @@ import type { Character } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/practice", label: "Practice" },
-  { href: "/daily", label: "Daily" },
-  { href: "/race", label: "Race" },
-  { href: "/stats", label: "Stats" },
+  { href: "/app/practice", label: "Practice" },
+  { href: "/app/daily", label: "Daily" },
+  { href: "/app/race", label: "Race" },
+  { href: "/app/stats", label: "Stats" },
 ];
 
 const Topbar = () => {
@@ -32,7 +32,7 @@ const Topbar = () => {
     <header className="sticky top-0 z-20 border-b-[3px] border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
         <Link
-          href="/"
+          href="/app"
           className="flex shrink-0 items-center gap-2 font-mono text-lg font-bold tracking-tight"
         >
           <span className="text-[var(--color-primary)]">type</span>

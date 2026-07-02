@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { typeTargetText } from "./helpers";
 
 test("completing today's daily updates the calendar and streak on reload", async ({ page }) => {
-  await page.goto("/daily");
+  await page.goto("/app/daily");
   await expect(page.getByRole("heading", { name: "Daily Challenge" })).toBeVisible();
 
   await expect(page.getByText("Current streak")).toBeVisible();
@@ -24,7 +24,7 @@ test("completing today's daily updates the calendar and streak on reload", async
 });
 
 test("future days are not playable", async ({ page }) => {
-  await page.goto("/daily");
+  await page.goto("/app/daily");
   const futureCell = page.locator('[data-state="future"]').first();
   await expect(futureCell).toBeVisible();
   await expect(futureCell.getByRole("textbox")).toHaveCount(0);

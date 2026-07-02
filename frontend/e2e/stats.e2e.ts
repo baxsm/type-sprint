@@ -2,15 +2,15 @@ import { expect, test } from "@playwright/test";
 import { typeTargetText } from "./helpers";
 
 test("hovering the wpm chart shows a tooltip with real run detail", async ({ page }) => {
-  await page.goto("/practice?lang=javascript&diff=easy");
+  await page.goto("/app/practice?lang=javascript&diff=easy");
   await typeTargetText(page);
   await expect(page.getByText("Try again")).toBeVisible();
 
-  await page.goto("/practice?lang=python&diff=easy");
+  await page.goto("/app/practice?lang=python&diff=easy");
   await typeTargetText(page);
   await expect(page.getByText("Try again")).toBeVisible();
 
-  await page.goto("/stats");
+  await page.goto("/app/stats");
   const chart = page.getByTestId("wpm-chart").locator(".recharts-wrapper");
   await expect(chart).toBeVisible();
 
@@ -24,15 +24,15 @@ test("hovering the wpm chart shows a tooltip with real run detail", async ({ pag
 });
 
 test("language breakdown chart renders a bar per language played", async ({ page }) => {
-  await page.goto("/practice?lang=javascript&diff=easy");
+  await page.goto("/app/practice?lang=javascript&diff=easy");
   await typeTargetText(page);
   await expect(page.getByText("Try again")).toBeVisible();
 
-  await page.goto("/practice?lang=python&diff=easy");
+  await page.goto("/app/practice?lang=python&diff=easy");
   await typeTargetText(page);
   await expect(page.getByText("Try again")).toBeVisible();
 
-  await page.goto("/stats");
+  await page.goto("/app/stats");
   const chart = page.getByTestId("language-breakdown-chart");
   await expect(chart).toBeVisible();
   await expect(chart.locator(".recharts-bar-rectangle")).toHaveCount(2);

@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Topbar from "@/components/topbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -36,12 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static inline script, no user input */}
         <script dangerouslySetInnerHTML={{ __html: noFlashScript }} />
       </head>
-      <body>
-        <div className="flex min-h-screen flex-col">
-          <Topbar />
-          <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">{children}</main>
-        </div>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

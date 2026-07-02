@@ -51,7 +51,7 @@ export default function StatsPage() {
         <Subtitle className="max-w-sm">
           Your typing stats and history will show up here once you complete a run.
         </Subtitle>
-        <Link href="/practice">
+        <Link href="/app/practice">
           <Button>Start practicing</Button>
         </Link>
       </Panel>
