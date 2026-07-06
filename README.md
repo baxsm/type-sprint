@@ -1,9 +1,5 @@
 # type-sprint
 
-<p align="center">
-  <img src="assets/logo.svg" alt="type-sprint" width="280">
-</p>
-
 > A typing speed game for code and prose. Practice solo, take the daily challenge, or race a friend in real time.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
