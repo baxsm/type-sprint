@@ -99,7 +99,3 @@ bun test             # unit + real-socket integration
 bun run typecheck
 bun run lint
 ```
-
-## Status
-
-Public portfolio project. No database, no accounts, no deployment config included here.
